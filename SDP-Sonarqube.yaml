@@ -1,3 +1,4 @@
+####Sonarqube Nested Template for SDP-Master 
 AWSTemplateFormatVersion: 2010-09-09
 Parameters:
     DBName:
@@ -33,21 +34,13 @@ Resources:
           Environment:
             - Name: 'SONAR_WEB_CONTEXT'
               Value: '/sonarqube'
-<<<<<<< Updated upstream
-            - Name: 'SONAR_JDBC_USERNAME'
-              Value: !Ref DBUser 
-            - Name: 'SONARQUBE_JDBC_PASSWORD'
-              Value: !Ref DBPassword
-            - Name: 'SONARQUBE_JDBC_URL'
-              Value: !Sub 'jdbc:postgresql:${MyDB.Endpoint.Address}'
-=======
+          ####Commented out environment variables for troubleshooting.
           #  - Name: 'SONAR_JDBC_USERNAME'
           #    Value: !Ref DBUser 
           #  - Name: 'SONARQUBE_JDBC_PASSWORD'
           #    Value: !Ref DBPassword
           #  - Name: 'SONARQUBE_JDBC_URL'
           #    Value: !Sub 'jdbc:postgresql:${MyDB.Endpoint.Address}'
->>>>>>> Stashed changes
       ExecutionRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
       Memory: '8192'
       NetworkMode: 'bridge'

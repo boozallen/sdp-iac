@@ -1,3 +1,4 @@
+####ECS Cluster Nested Template for SDP-Master 
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   KeyName:
