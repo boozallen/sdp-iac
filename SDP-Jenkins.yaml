@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  SDPCluster:
+    Type: String
+Resources:
+  JenkinsMasterTskDefn:
+    Type: 'AWS::ECS::TaskDefinition'
+    Properties:
+      RequiresCompatibilities:
+        - 'EC2'
+      ContainerDefinitions:
+        - 
+          Name: 'jenkins_master-container'
+          Image: 'jenkins/jenkins:lts'
+          Cpu: '2048'
+          Memory: '3000'
+          Essential: true
+          PortMappings:
+            - ContainerPort: 8080
+              HostPort: 8080
+            - ContainerPort: 50000
+              HostPort: 50000
+          Environment:
+            - Name: 'JENKINS_OPTS'
+              Value: '--prefix=/jenkins'
+      ExecutionRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
+      Memory: '8192'
+      NetworkMode: 'bridge'
+      TaskRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
+  JenkinsAgentTskDefn:
+    Type: 'AWS::ECS::TaskDefinition'
+    Properties:
+      RequiresCompatibilities:
+        - 'EC2'
+      ContainerDefinitions:
+        - 
+          Name: 'jenkins_agent-container'
+          ##Placeholder image until agent image available on Dockerhub
+          Image: 'jenkins/jenkins:lts'
+          Cpu: '2048'
+          Memory: '3000'
+          Essential: true
+      ExecutionRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
+      Memory: '8192'
+      NetworkMode: 'bridge'
+      TaskRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
+  JenkinsMasterservice:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref 'SDPCluster'
+      DesiredCount: '1'
+      TaskDefinition: !Ref JenkinsMasterTskDefn
+    DependsOn:
+      - JenkinsMasterTskDefn
+  JenkinsAgentservice:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref 'SDPCluster'
+      DesiredCount: '1'
+      TaskDefinition: !Ref JenkinsAgentTskDefn
+    DependsOn:
+      - JenkinsAgentTskDefn
