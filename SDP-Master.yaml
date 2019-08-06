@@ -1,7 +1,6 @@
-####Input Parameters
+####Master Template For Creating SDP on AWS ECS
 AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
-##DB Input Parameters for PostgresRDS Stack  
   SubnetGroupName:
       Type: String
       Description: The subnet group name
