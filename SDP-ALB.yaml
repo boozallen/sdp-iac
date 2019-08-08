@@ -1,0 +1,83 @@
+####Nested Template For Creating an ALB for SDP
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+####Create ALB
+  SDPALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      LoadBalancerAttributes: 
+        - LoadBalancerAttribute
+      Name: SDP-ECS-ALB
+      Scheme: internal
+      SecurityGroups: 
+        - sg-c81761b9
+        - sg-6e8a1510
+      SubnetMappings: 
+        - SubnetMapping
+      Subnets: 
+        - subnet-4b539267
+        - subnet-f1cefa94
+      Type: application
+####Create ALB Listener
+  SDPALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties: 
+      Certificates: 
+        -   CertificateArn: arn:aws:acm:us-east-1:686883784036:certificate/54e40b36-1e94-43f1-977f-8b2b748c14c5
+      DefaultActions: 
+        - Action
+      LoadBalancerArn: !Ref SDPALB
+      Port: 443
+      Protocol: HTTPS
+      SslPolicy: ELBSecurityPolicy-2016-08
+#####Create Jenkins Target Group
+#  Jenkins-TG:
+#    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+#    Properties: 
+#      HealthCheckEnabled: Boolean
+#      HealthCheckIntervalSeconds: Integer
+#      HealthCheckPath: String
+#      HealthCheckPort: String
+#      HealthCheckProtocol: String
+#      HealthCheckTimeoutSeconds: Integer
+#      HealthyThresholdCount: Integer
+#      Matcher: 
+#        Matcher
+#      Name: String
+#      Port: Integer
+#      Protocol: String
+#      Tags: 
+#        - Tag
+#      TargetGroupAttributes: 
+#        - TargetGroupAttribute
+#      Targets: 
+#        - TargetDescription
+#      TargetType: String
+#      UnhealthyThresholdCount: Integer
+#      VpcId: String
+#
+#####Create Sonarqube Target Group
+#  Sonarqube-TG:
+#    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+#    Properties: 
+#      HealthCheckEnabled: Boolean
+#      HealthCheckIntervalSeconds: Integer
+#      HealthCheckPath: String
+#      HealthCheckPort: String
+#      HealthCheckProtocol: String
+#      HealthCheckTimeoutSeconds: Integer
+#      HealthyThresholdCount: Integer
+#      Matcher: 
+#        Matcher
+#      Name: String
+#      Port: Integer
+#      Protocol: String
+#      Tags: 
+#        - Tag
+#      TargetGroupAttributes: 
+#        - TargetGroupAttribute
+#      Targets: 
+#        - TargetDescription
+#      TargetType: String
+#      UnhealthyThresholdCount: Integer
+#      VpcId: String
