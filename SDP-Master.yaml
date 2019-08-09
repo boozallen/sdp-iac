@@ -64,6 +64,14 @@ Resources:
 
 ####CREATE SUBNETS
 
+####CREATE ALB
+  SDPALB: 
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - SDPECSCluster
+    Properties:
+      TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-ALB.yaml"
+    
 ####CREATE ECS CLUSTER
   SDPECSCluster: 
     Type: AWS::CloudFormation::Stack
@@ -76,6 +84,7 @@ Resources:
         MaxSize: !Ref MaxSize
         InstanceType: !Ref InstanceType
       TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-Cluster.yaml"
+
 ####CREATE SONARQUBE
   SonarqubeStack: 
     Type: AWS::CloudFormation::Stack
@@ -88,8 +97,12 @@ Resources:
         SubnetGroupName: !Ref SubnetGroupName
         SubnetId: !Join [ ',', !Ref Subnet]
         ####Import cluster name to associate the service & task definition
-        SDPCluster: !GetAtt SDPECSCluster.Outputs.SDPCluster 
+        SDPCluster: !GetAtt SDPECSCluster.Outputs.SDPCluster
+        SonarqubeTG: !GetAtt SDPALB.Outputs.SonarqubeTargetGroup 
       TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-Sonarqube.yaml" 
+    DependsOn: 
+      - SDPALB
+      
 ####CREATE JENKINS
   JenkinsStack: 
     Type: AWS::CloudFormation::Stack
@@ -98,4 +111,3 @@ Resources:
         ####Import cluster name to associate the service & task definition
         SDPCluster: !GetAtt SDPECSCluster.Outputs.SDPCluster 
       TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-Jenkins.yaml"
-####CREATE ALB
