@@ -3,6 +3,8 @@ AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   SDPCluster:
     Type: String
+  JenkinsTG:
+        Type: String
 Resources:
   JenkinsMasterTskDefn:
     Type: 'AWS::ECS::TaskDefinition'
@@ -11,7 +13,7 @@ Resources:
         - 'EC2'
       ContainerDefinitions:
         - 
-          Name: 'jenkins_master-container'
+          Name: 'jenkins-master-container'
           Image: 'jenkins/jenkins:lts'
           Cpu: '2048'
           Memory: '3000'
@@ -51,6 +53,10 @@ Resources:
       Cluster: !Ref 'SDPCluster'
       DesiredCount: '1'
       TaskDefinition: !Ref JenkinsMasterTskDefn
+      LoadBalancers:
+        - ContainerName: jenkins-master-container
+          ContainerPort: '8080'
+          TargetGroupArn: !Ref JenkinsTG
     DependsOn:
       - JenkinsMasterTskDefn
   JenkinsAgentservice:

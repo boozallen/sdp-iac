@@ -14,18 +14,16 @@ Resources:
         - subnet-4b539267
         - subnet-afc8fcca
       Type: application
-####Create ALB Listener
+####Create Sonarqube ALB Listener
   SDPALBListener:
    Type: AWS::ElasticLoadBalancingV2::Listener
    Properties:
-     Certificates:
-       - CertificateArn: arn:aws:acm:us-east-1:686883784036:certificate/54e40b36-1e94-43f1-977f-8b2b748c14c5
      DefaultActions:
        - Type: forward
          TargetGroupArn: !Ref 'SonarqubeTG'
      LoadBalancerArn: !Ref SDPALB
-     Port: 443
-     Protocol: "HTTPS"
+     Port: 80
+     Protocol: "HTTP"
 #####Create Sonarqube Target Group
   SonarqubeTG:
    Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -44,8 +42,26 @@ Resources:
      Protocol: HTTP
      UnhealthyThresholdCount: 2
      VpcId: vpc-8443b4fd
-#####Create ALB Listener
-  ECSALBListenerRule:
+#####Create Jenkins Target Group
+  JenkinsTG:
+   Type: AWS::ElasticLoadBalancingV2::TargetGroup
+   DependsOn: 
+    - SDPALB
+   Properties: 
+     HealthCheckEnabled: true
+     HealthCheckIntervalSeconds: 10
+     HealthCheckPath: /jenkins/login
+     HealthCheckPort: traffic-port
+     HealthCheckProtocol: HTTP
+     HealthCheckTimeoutSeconds: 5
+     HealthyThresholdCount: 5
+     Name: SDPJenkinsTG
+     Port: 80
+     Protocol: HTTP
+     UnhealthyThresholdCount: 2
+     VpcId: vpc-8443b4fd
+#####Create ALB Listener Rule
+  SonarqubeALBListenerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     DependsOn: SDPALBListener
     Properties:
@@ -56,7 +72,22 @@ Resources:
       - Field: path-pattern
         Values: [/sonarqube]
       ListenerArn: !Ref 'SDPALBListener'
+      Priority: 2
+#####Create ALB Listener Rule
+  JenkinsALBListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    DependsOn: SDPALBListener
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn: !Ref 'JenkinsTG'
+      Conditions:
+      - Field: path-pattern
+        Values: [/jenkins,/jenkins/**]
+      ListenerArn: !Ref 'SDPALBListener'
       Priority: 1
 Outputs:
   SonarqubeTargetGroup:
     Value: !Ref 'SonarqubeTG'
+  JenkinsTargetGroup:
+    Value: !Ref 'JenkinsTG'

@@ -102,7 +102,7 @@ Resources:
       TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-Sonarqube.yaml" 
     DependsOn: 
       - SDPALB
-      
+
 ####CREATE JENKINS
   JenkinsStack: 
     Type: AWS::CloudFormation::Stack
@@ -110,4 +110,7 @@ Resources:
       Parameters: 
         ####Import cluster name to associate the service & task definition
         SDPCluster: !GetAtt SDPECSCluster.Outputs.SDPCluster 
+        JenkinsTG: !GetAtt SDPALB.Outputs.JenkinsTargetGroup 
       TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-Jenkins.yaml"
+    DependsOn: 
+      - SDPALB
