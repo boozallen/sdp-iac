@@ -91,3 +91,5 @@ Outputs:
     Value: !Ref 'SonarqubeTG'
   JenkinsTargetGroup:
     Value: !Ref 'JenkinsTG'
+  DNSName:
+    Value: !GetAtt SDPALB.DNSName

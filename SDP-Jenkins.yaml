@@ -4,7 +4,9 @@ Parameters:
   SDPCluster:
     Type: String
   JenkinsTG:
-        Type: String
+    Type: String
+  DNSName: 
+    Type: String
 Resources:
   JenkinsMasterTskDefn:
     Type: 'AWS::ECS::TaskDefinition'
@@ -38,11 +40,20 @@ Resources:
       ContainerDefinitions:
         - 
           Name: 'jenkins_agent-container'
-          ##Placeholder image until agent image available on Dockerhub
+          ##Placeholder image until sdp agent image available on Dockerhub
           Image: 'jenkins/jenkins:lts'
           Cpu: '2048'
           Memory: '3000'
           Essential: true
+          Environment:
+            - Name: 'EXECUTORS'
+              Value: '1'
+            - Name: 'JENKINS_PASSWORD'
+              Value: 'admin'
+            - Name: 'JENKINS_USERNAME'
+              Value: 'admin'
+            - Name: 'JENKINS_URL'
+              Value: !Sub '${DNSName}/jenkins'
       ExecutionRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
       Memory: '8192'
       NetworkMode: 'bridge'
