@@ -32,7 +32,7 @@ Resources:
    Properties: 
      HealthCheckEnabled: true
      HealthCheckIntervalSeconds: 10
-     HealthCheckPath: /sonarqube
+     HealthCheckPath: /sonarqube/api/system/status
      HealthCheckPort: traffic-port
      HealthCheckProtocol: HTTP
      HealthCheckTimeoutSeconds: 5
@@ -70,7 +70,7 @@ Resources:
         TargetGroupArn: !Ref 'SonarqubeTG'
       Conditions:
       - Field: path-pattern
-        Values: [/sonarqube]
+        Values: [/sonarqube,sonarqube/**]
       ListenerArn: !Ref 'SDPALBListener'
       Priority: 2
 #####Create ALB Listener Rule

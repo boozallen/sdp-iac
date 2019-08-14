@@ -26,7 +26,7 @@ Resources:
       ContainerDefinitions:
         - 
           Name: 'sonarqube-container'
-          Image: 'sonarqube:6.7'
+          Image: '686883784036.dkr.ecr.us-east-1.amazonaws.com/tristan-test-repo:sonarqube-webcontext3'
           Cpu: '2048'
           Memory: '3000'
           Essential: true

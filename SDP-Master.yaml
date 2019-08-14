@@ -60,18 +60,14 @@ Parameters:
       r3.8xlarge, i2.xlarge, i2.2xlarge, i2.4xlarge, i2.8xlarge]
     ConstraintDescription: Please choose a valid instance type.
 Resources:
+
 ####CREATE VPC
+# Placeholder for VPC Stack. Unable to use due to CSN restrictions.
+#  SDPVPC:
+#    Type: AWS::Cloudformation::Stack
+#    Properties:
+#      TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-VPC.yaml"
 
-####CREATE SUBNETS
-
-####CREATE ALB
-  SDPALB: 
-    Type: AWS::CloudFormation::Stack
-    DependsOn:
-      - SDPECSCluster
-    Properties:
-      TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-ALB.yaml"
-    
 ####CREATE ECS CLUSTER
   SDPECSCluster: 
     Type: AWS::CloudFormation::Stack
@@ -85,6 +81,14 @@ Resources:
         InstanceType: !Ref InstanceType
       TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-Cluster.yaml"
 
+####CREATE ALB
+  SDPALB: 
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - SDPECSCluster
+    Properties:
+      TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-ALB.yaml"
+    
 ####CREATE SONARQUBE
   SonarqubeStack: 
     Type: AWS::CloudFormation::Stack
