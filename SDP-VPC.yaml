@@ -1,4 +1,3 @@
-
 Description:  This template deploys a VPC, with a pair of public and private subnets spread
   across two Availability Zones. 
 

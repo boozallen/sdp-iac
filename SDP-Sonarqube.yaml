@@ -1,4 +1,7 @@
-####Sonarqube Nested Template for SDP-Master 
+####Sonarqube Nested Template for SDP-Master
+####Missing Requirements
+####Referenced images need to be pushed to ECR.
+####Execution Role ARN and TaskRoleARN 
 AWSTemplateFormatVersion: 2010-09-09
 Parameters:
     DBName:
@@ -26,7 +29,7 @@ Resources:
       ContainerDefinitions:
         - 
           Name: 'sonarqube-container'
-          Image: '686883784036.dkr.ecr.us-east-1.amazonaws.com/tristan-test-repo:sonarqube-webcontext3'
+          Image: '686883784036.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:sonarqube'
           Cpu: '2048'
           Memory: '3000'
           Essential: true
@@ -36,12 +39,12 @@ Resources:
           Environment:
             - Name: 'SONAR_WEB_CONTEXT'
               Value: '/sonarqube'
-            - Name: 'sonar.jbdc.username'
+            - Name: 'SONARQUBE_JDBC_USERNAME'
               Value: !Ref DBUser 
-            - Name: 'sonar.jdbc.password'
+            - Name: 'SONARQUBE_JDBC_PASSWORD'
               Value: !Ref DBPassword
-            - Name: 'sonar.jdbc.url'
-              Value: !Sub 'jdbc:postgresql:${MyDB.Endpoint.Address}'
+            - Name: 'SONARQUBE_JDBC_URL'
+              Value: !Sub 'jdbc:postgresql://${MyDB.Endpoint.Address}:5432/${DBName}'
       ExecutionRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
       Memory: '8192'
       NetworkMode: 'bridge'
@@ -50,7 +53,7 @@ Resources:
       - MyDB
   MyDB:
     Properties:
-      DBName: !Ref DBName
+      DBName: sonar
       DBInstanceIdentifier: !Ref DBIdentifier
       AllocatedStorage: '100'
       DBInstanceClass: db.t3.small

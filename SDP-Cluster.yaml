@@ -1,4 +1,8 @@
 ####ECS Cluster Nested Template for SDP-Master 
+####Missing Requirements
+####Subnets and a Security group need to be created and referenced.
+####IAM Instance profile needs to be created and referenced.
+####References Shared Key
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   KeyName:

@@ -1,4 +1,6 @@
 ####Nested Template For Creating an ALB for SDP
+####Missing Requirements
+####Security Group IDs, SubnetIDs, VPCID
 AWSTemplateFormatVersion: "2010-09-09"
 Resources:
 ####Create ALB
