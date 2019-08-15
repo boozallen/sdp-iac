@@ -115,7 +115,9 @@ Resources:
         ####Import cluster name to associate the service & task definition
         SDPCluster: !GetAtt SDPECSCluster.Outputs.SDPCluster 
         JenkinsTG: !GetAtt SDPALB.Outputs.JenkinsTargetGroup
-        DNSName: !GetAtt SDPALB.Outputs.DNSName 
+        JenkinsAgentTG: !GetAtt SDPALB.Outputs.JenkinsAgentTargetGroup
+        DNSName: !GetAtt SDPALB.Outputs.DNSName
+        NLBDNSName: !GetAtt SDPALB.Outputs.NLBDNSName 
       TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-Jenkins.yaml"
     DependsOn: 
       - SDPALB

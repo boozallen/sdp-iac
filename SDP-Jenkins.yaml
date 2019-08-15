@@ -8,7 +8,11 @@ Parameters:
     Type: String
   JenkinsTG:
     Type: String
+  JenkinsAgentTG:
+    Type: String
   DNSName: 
+    Type: String
+  NLBDNSName:
     Type: String
 Resources:
   JenkinsMasterTskDefn:
@@ -21,7 +25,7 @@ Resources:
           Name: 'jenkins-master-container'
           Image: '686883784036.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:jenkinsmaster'
           Cpu: '2048'
-          Memory: '3000'
+          Memory: '3072'
           Essential: true
           PortMappings:
             - ContainerPort: 8080
@@ -32,7 +36,7 @@ Resources:
             - Name: 'JENKINS_OPTS'
               Value: '--prefix=/jenkins'
       ExecutionRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
-      Memory: '8192'
+      Memory: '3072'
       NetworkMode: 'bridge'
       TaskRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
   JenkinsAgentTskDefn:
@@ -45,7 +49,7 @@ Resources:
           Name: 'jenkins_agent-container'
           Image: '686883784036.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:jenkins-agent'
           Cpu: '2048'
-          Memory: '3000'
+          Memory: '3072'
           Essential: true
           Environment:
             - Name: 'EXECUTORS'
@@ -56,9 +60,11 @@ Resources:
               Value: 'admin'
             - Name: 'JENKINS_URL'
               Value: !Sub 'http://${DNSName}/jenkins'
+            - Name: 'JENKINS_TUNNEL'
+              Value: !Sub '${NLBDNSName}:50000'
           Privileged: True
       ExecutionRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
-      Memory: '8192'
+      Memory: '3072'
       NetworkMode: 'bridge'
       TaskRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
   JenkinsMasterservice:
@@ -71,6 +77,11 @@ Resources:
         - ContainerName: jenkins-master-container
           ContainerPort: '8080'
           TargetGroupArn: !Ref JenkinsTG
+        - ContainerName: jenkins-master-container
+          ContainerPort: '50000'
+          TargetGroupArn: !Ref JenkinsAgentTG
+
+
     DependsOn:
       - JenkinsMasterTskDefn
   JenkinsAgentservice:

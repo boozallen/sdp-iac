@@ -88,10 +88,69 @@ Resources:
         Values: [/jenkins,/jenkins/**]
       ListenerArn: !Ref 'SDPALBListener'
       Priority: 1
+#####Create NLB for Jenkins Agent configuration
+  SDPNLB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      IpAddressType: ipv4
+      Name: SDP-ECS-NLB
+      Scheme: internal
+      Subnets: 
+        - subnet-4b539267
+        - subnet-afc8fcca
+      Type: network
+
+  JenkinsAgentTG:
+   Type: AWS::ElasticLoadBalancingV2::TargetGroup
+   DependsOn: 
+    - SDPALB
+   Properties: 
+     HealthCheckEnabled: true
+     HealthCheckIntervalSeconds: 10
+     HealthCheckPath: /jenkins/login
+     HealthCheckPort: 8080
+     HealthCheckProtocol: HTTP
+     HealthyThresholdCount: 3
+     Name: SDPJenkinsAgentTG
+     Port: 80
+     Protocol: TCP
+     UnhealthyThresholdCount: 3
+     VpcId: vpc-8443b4fd
+
+####Create NLB Listener
+  SDPNLBListener1:
+     Type: AWS::ElasticLoadBalancingV2::Listener
+     DependsOn: 
+      - SDPNLB
+     Properties:
+       DefaultActions:
+         - Type: forward
+           TargetGroupArn: !Ref 'JenkinsAgentTG'
+       LoadBalancerArn: !Ref SDPNLB
+       Port: 80
+       Protocol: "TCP"
+  SDPNLBListener2:
+     DependsOn: 
+      - SDPNLB
+     Type: AWS::ElasticLoadBalancingV2::Listener
+     Properties:
+       DefaultActions:
+         - Type: forward
+           TargetGroupArn: !Ref 'JenkinsAgentTG'
+       LoadBalancerArn: !Ref SDPNLB
+       Port: 50000
+       Protocol: "TCP"
+
+
+
 Outputs:
   SonarqubeTargetGroup:
     Value: !Ref 'SonarqubeTG'
   JenkinsTargetGroup:
     Value: !Ref 'JenkinsTG'
+  JenkinsAgentTargetGroup:
+    Value: !Ref 'JenkinsAgentTG'
   DNSName:
     Value: !GetAtt SDPALB.DNSName
+  NLBDNSName:
+    Value: !GetAtt SDPNLB.DNSName

@@ -31,7 +31,7 @@ Resources:
           Name: 'sonarqube-container'
           Image: '686883784036.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:sonarqube'
           Cpu: '2048'
-          Memory: '3000'
+          Memory: '3072'
           Essential: true
           PortMappings:
             - ContainerPort: 9000
@@ -46,7 +46,7 @@ Resources:
             - Name: 'SONARQUBE_JDBC_URL'
               Value: !Sub 'jdbc:postgresql://${MyDB.Endpoint.Address}:5432/${DBName}'
       ExecutionRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
-      Memory: '8192'
+      Memory: '3072'
       NetworkMode: 'bridge'
       TaskRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
     DependsOn:
