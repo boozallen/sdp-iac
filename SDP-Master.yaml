@@ -38,6 +38,8 @@ Parameters:
       Description: Select a VPC that allows instances access to the Internet.
   Subnet:
       Type: List<AWS::EC2::Subnet::Id>
+  DBSecGroups:
+        Type: List<AWS::EC2::SecurityGroup::Id>
   KeyName:
       Type: AWS::EC2::KeyPair::KeyName
       Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
@@ -100,6 +102,7 @@ Resources:
         DBName: !Ref DBName
         SubnetGroupName: !Ref SubnetGroupName
         SubnetId: !Join [ ',', !Ref Subnet]
+        DBSecGroups: !Join [ ',', !Ref DBSecGroups]
         ####Import cluster name to associate the service & task definition
         SDPCluster: !GetAtt SDPECSCluster.Outputs.SDPCluster
         SonarqubeTG: !GetAtt SDPALB.Outputs.SonarqubeTargetGroup 

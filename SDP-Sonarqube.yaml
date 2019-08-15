@@ -16,6 +16,8 @@ Parameters:
         Type: String
     SubnetId:
         Type: List<AWS::EC2::Subnet::Id>
+    DBSecGroups:
+        Type: List<AWS::EC2::SecurityGroup::Id>
     SDPCluster:
         Type: String
     SonarqubeTG:
@@ -62,6 +64,7 @@ Resources:
       MasterUsername: !Ref DBUser
       MasterUserPassword: !Ref DBPassword
       DBSubnetGroupName: !Ref SubnetGroupName
+      VPCSecurityGroups: !Ref DBSecGroups
     Type: 'AWS::RDS::DBInstance'
     DependsOn:
       - MySubnetGrp
