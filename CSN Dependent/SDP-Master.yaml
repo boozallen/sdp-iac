@@ -1,0 +1,123 @@
+####Master Template For Creating SDP on AWS ECS
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  SubnetGroupName:
+      Type: String
+      Description: The subnet group name
+  DBName:
+      Default: SDPPostGres
+      Description: The database name
+      Type: String
+      MinLength: 1
+      MaxLength: 64
+      AllowedPattern: '[a-zA-Z0-9]*'
+      ConstraintDescription : must begin with a letter and contain only alphanumeric characters.
+  DBUser:
+      Description: The database admin account username
+      Type: String
+      MinLength: 1
+      MaxLength: 64
+      AllowedPattern: '[a-zA-Z0-9]*'
+      ConstraintDescription : must begin with a letter and contain only alphanumeric characters.
+  DBPassword:
+      Description: The database admin account password
+      Type: String
+      MinLength: 1
+      MaxLength: 64
+      AllowedPattern: '[a-zA-Z0-9]*'
+      ConstraintDescription : must contain only alphanumeric characters.
+  DBIdentifier:
+      Description: The database identifier
+      Type: String
+      MinLength: 1
+      MaxLength: 64
+      AllowedPattern: '[a-zA-Z0-9]*'
+      ConstraintDescription : must contain only alphanumeric characters.
+  VpcId:
+      Type: AWS::EC2::VPC::Id
+      Description: Select a VPC that allows instances access to the Internet.
+  Subnet:
+      Type: List<AWS::EC2::Subnet::Id>
+  KeyName:
+      Type: AWS::EC2::KeyPair::KeyName
+      Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
+  DesiredCapacity:
+      Type: Number
+      Default: '3'
+      Description: Number of instances to launch in your ECS cluster.
+  MaxSize:
+    Type: Number
+    Default: '3'
+    Description: Maximum number of instances that can be launched in your ECS cluster.
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: m4.xlarge
+    AllowedValues: [t2.micro, t2.small, t2.medium, t2.large, m3.medium, m3.large,
+      m3.xlarge, m3.2xlarge, m4.large, m4.xlarge, m4.2xlarge, m4.4xlarge, m4.10xlarge,
+      c4.large, c4.xlarge, c4.2xlarge, c4.4xlarge, c4.8xlarge, c3.large, c3.xlarge,
+      c3.2xlarge, c3.4xlarge, c3.8xlarge, r3.large, r3.xlarge, r3.2xlarge, r3.4xlarge,
+      r3.8xlarge, i2.xlarge, i2.2xlarge, i2.4xlarge, i2.8xlarge]
+    ConstraintDescription: Please choose a valid instance type.
+Resources:
+
+####CREATE VPC
+# Placeholder for VPC Stack. Unable to use due to CSN restrictions.
+#  SDPVPC:
+#    Type: AWS::Cloudformation::Stack
+#    Properties:
+#      TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-VPC.yaml"
+
+####CREATE ECS CLUSTER
+  SDPECSCluster: 
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters: 
+        KeyName: !Ref KeyName
+        VpcId: !Ref VpcId 
+        SubnetId: !Join [ ',', !Ref Subnet]
+        DesiredCapacity: !Ref DesiredCapacity
+        MaxSize: !Ref MaxSize
+        InstanceType: !Ref InstanceType
+      TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-Cluster.yaml"
+
+####CREATE ALB
+  SDPALB: 
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - SDPECSCluster
+    Properties:
+      TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-ALB.yaml"
+    
+####CREATE SONARQUBE
+  SonarqubeStack: 
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters: 
+        DBUser: !Ref DBUser
+        DBPassword: !Ref DBPassword  
+        DBIdentifier: !Ref DBIdentifier
+        DBName: !Ref DBName
+        SubnetGroupName: !Ref SubnetGroupName
+        SubnetId: !Join [ ',', !Ref Subnet]
+        ####Import cluster name to associate the service & task definition
+        SDPCluster: !GetAtt SDPECSCluster.Outputs.SDPCluster
+        SonarqubeTG: !GetAtt SDPALB.Outputs.SonarqubeTargetGroup 
+      TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-Sonarqube.yaml" 
+    DependsOn: 
+      - SDPALB
+
+####CREATE JENKINS
+  JenkinsStack: 
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters: 
+        ####Import cluster name to associate the service & task definition
+        SDPCluster: !GetAtt SDPECSCluster.Outputs.SDPCluster 
+        JenkinsTG: !GetAtt SDPALB.Outputs.JenkinsTargetGroup
+        JenkinsAgentTG: !GetAtt SDPALB.Outputs.JenkinsAgentTargetGroup
+        DNSName: !GetAtt SDPALB.Outputs.DNSName
+        NLBDNSName: !GetAtt SDPALB.Outputs.NLBDNSName 
+      TemplateURL: "https://sdp-cloudformation.s3.amazonaws.com/New-Templates/SDP-Jenkins.yaml"
+    DependsOn: 
+      - SDPALB
