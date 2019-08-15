@@ -53,7 +53,7 @@ Resources:
       - MyDB
   MyDB:
     Properties:
-      DBName: sonar
+      DBName: !Ref DBName
       DBInstanceIdentifier: !Ref DBIdentifier
       AllocatedStorage: '100'
       DBInstanceClass: db.t3.small
