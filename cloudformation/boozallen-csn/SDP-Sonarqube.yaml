@@ -1,0 +1,91 @@
+####Sonarqube Nested Template for SDP-Master
+####Missing Requirements
+####Referenced images need to be pushed to ECR.
+####Execution Role ARN and TaskRoleARN 
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+    DBName:
+        Type: String
+    DBUser:
+        Type: String
+    DBPassword:
+        Type: String
+    DBIdentifier:
+        Type: String
+    SubnetGroupName:
+        Type: String
+    SubnetId:
+        Type: List<AWS::EC2::Subnet::Id>
+    DBSecGroups:
+        Type: List<AWS::EC2::SecurityGroup::Id>
+    SDPCluster:
+        Type: String
+    SonarqubeTG:
+        Type: String
+Resources:
+  SonarqubeTask:
+    Type: 'AWS::ECS::TaskDefinition'
+    Properties:
+      RequiresCompatibilities:
+        - 'EC2'
+      ContainerDefinitions:
+        - 
+          Name: 'sonarqube-container'
+          Image: '686883784036.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:sonarqube'
+          Cpu: '2048'
+          Memory: '3072'
+          Essential: true
+          PortMappings:
+            - ContainerPort: 9000
+              HostPort: 9000
+          Environment:
+            - Name: 'SONAR_WEB_CONTEXT'
+              Value: '/sonarqube'
+            - Name: 'SONARQUBE_JDBC_USERNAME'
+              Value: !Ref DBUser 
+            - Name: 'SONARQUBE_JDBC_PASSWORD'
+              Value: !Ref DBPassword
+            - Name: 'SONARQUBE_JDBC_URL'
+              Value: !Sub 'jdbc:postgresql://${MyDB.Endpoint.Address}:5432/${DBName}'
+      ExecutionRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
+      Memory: '3072'
+      NetworkMode: 'bridge'
+      TaskRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
+    DependsOn:
+      - MyDB
+  MyDB:
+    Properties:
+      DBName: !Ref DBName
+      DBInstanceIdentifier: !Ref DBIdentifier
+      AllocatedStorage: '100'
+      DBInstanceClass: db.t3.small
+      Engine: postgres
+      PubliclyAccessible: false
+      MasterUsername: !Ref DBUser
+      MasterUserPassword: !Ref DBPassword
+      DBSubnetGroupName: !Ref SubnetGroupName
+      VPCSecurityGroups: !Ref DBSecGroups
+    Type: 'AWS::RDS::DBInstance'
+    DependsOn:
+      - MySubnetGrp
+  MySubnetGrp:
+    Properties:
+      DBSubnetGroupDescription: Subnet group for SDP RDS Postgres
+      DBSubnetGroupName: !Ref SubnetGroupName 
+      SubnetIds: !Ref 'SubnetId'
+    Type: "AWS::RDS::DBSubnetGroup"
+  Sonarqubeservice:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref 'SDPCluster'
+      DesiredCount: '1'
+      TaskDefinition: !Ref SonarqubeTask
+      LoadBalancers:
+        - ContainerName: sonarqube-container
+          ContainerPort: '9000'
+          TargetGroupArn: !Ref SonarqubeTG 
+    DependsOn:
+      - SonarqubeTask
+Outputs:
+  SonarqubeARN:
+    Value: !Ref SonarqubeTask

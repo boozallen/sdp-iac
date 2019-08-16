@@ -1,0 +1,156 @@
+####Nested Template For Creating an ALB for SDP
+####Missing Requirements
+####Security Group IDs, SubnetIDs, VPCID
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+####Create ALB
+  SDPALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      Name: SDP-ECS-ALB
+      Scheme: internal
+      SecurityGroups: 
+        - sg-052c5a74
+        - sg-6e8a1510
+      Subnets: 
+        - subnet-4b539267
+        - subnet-afc8fcca
+      Type: application
+####Create Sonarqube ALB Listener
+  SDPALBListener:
+   Type: AWS::ElasticLoadBalancingV2::Listener
+   Properties:
+     DefaultActions:
+       - Type: forward
+         TargetGroupArn: !Ref 'SonarqubeTG'
+     LoadBalancerArn: !Ref SDPALB
+     Port: 80
+     Protocol: "HTTP"
+#####Create Sonarqube Target Group
+  SonarqubeTG:
+   Type: AWS::ElasticLoadBalancingV2::TargetGroup
+   DependsOn: 
+    - SDPALB
+   Properties: 
+     HealthCheckEnabled: true
+     HealthCheckIntervalSeconds: 10
+     HealthCheckPath: /sonarqube/api/system/status
+     HealthCheckPort: traffic-port
+     HealthCheckProtocol: HTTP
+     HealthCheckTimeoutSeconds: 5
+     HealthyThresholdCount: 5
+     Name: SDPSonarqubeTG
+     Port: 80
+     Protocol: HTTP
+     UnhealthyThresholdCount: 2
+     VpcId: vpc-8443b4fd
+#####Create Jenkins Target Group
+  JenkinsTG:
+   Type: AWS::ElasticLoadBalancingV2::TargetGroup
+   DependsOn: 
+    - SDPALB
+   Properties: 
+     HealthCheckEnabled: true
+     HealthCheckIntervalSeconds: 10
+     HealthCheckPath: /jenkins/login
+     HealthCheckPort: traffic-port
+     HealthCheckProtocol: HTTP
+     HealthCheckTimeoutSeconds: 5
+     HealthyThresholdCount: 5
+     Name: SDPJenkinsTG
+     Port: 80
+     Protocol: HTTP
+     UnhealthyThresholdCount: 2
+     VpcId: vpc-8443b4fd
+#####Create ALB Listener Rule
+  SonarqubeALBListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    DependsOn: SDPALBListener
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn: !Ref 'SonarqubeTG'
+      Conditions:
+      - Field: path-pattern
+        Values: [/sonarqube,sonarqube/**]
+      ListenerArn: !Ref 'SDPALBListener'
+      Priority: 2
+#####Create ALB Listener Rule
+  JenkinsALBListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    DependsOn: SDPALBListener
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn: !Ref 'JenkinsTG'
+      Conditions:
+      - Field: path-pattern
+        Values: [/jenkins,/jenkins/**]
+      ListenerArn: !Ref 'SDPALBListener'
+      Priority: 1
+#####Create NLB for Jenkins Agent configuration
+  SDPNLB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      IpAddressType: ipv4
+      Name: SDP-ECS-NLB
+      Scheme: internal
+      Subnets: 
+        - subnet-4b539267
+        - subnet-afc8fcca
+      Type: network
+
+  JenkinsAgentTG:
+   Type: AWS::ElasticLoadBalancingV2::TargetGroup
+   DependsOn: 
+    - SDPALB
+   Properties: 
+     HealthCheckEnabled: true
+     HealthCheckIntervalSeconds: 10
+     HealthCheckPath: /jenkins/login
+     HealthCheckPort: 8080
+     HealthCheckProtocol: HTTP
+     HealthyThresholdCount: 3
+     Name: SDPJenkinsAgentTG
+     Port: 80
+     Protocol: TCP
+     UnhealthyThresholdCount: 3
+     VpcId: vpc-8443b4fd
+
+####Create NLB Listener
+  SDPNLBListener1:
+     Type: AWS::ElasticLoadBalancingV2::Listener
+     DependsOn: 
+      - SDPNLB
+     Properties:
+       DefaultActions:
+         - Type: forward
+           TargetGroupArn: !Ref 'JenkinsAgentTG'
+       LoadBalancerArn: !Ref SDPNLB
+       Port: 80
+       Protocol: "TCP"
+  SDPNLBListener2:
+     DependsOn: 
+      - SDPNLB
+     Type: AWS::ElasticLoadBalancingV2::Listener
+     Properties:
+       DefaultActions:
+         - Type: forward
+           TargetGroupArn: !Ref 'JenkinsAgentTG'
+       LoadBalancerArn: !Ref SDPNLB
+       Port: 50000
+       Protocol: "TCP"
+
+
+
+Outputs:
+  SonarqubeTargetGroup:
+    Value: !Ref 'SonarqubeTG'
+  JenkinsTargetGroup:
+    Value: !Ref 'JenkinsTG'
+  JenkinsAgentTargetGroup:
+    Value: !Ref 'JenkinsAgentTG'
+  DNSName:
+    Value: !GetAtt SDPALB.DNSName
+  NLBDNSName:
+    Value: !GetAtt SDPNLB.DNSName
