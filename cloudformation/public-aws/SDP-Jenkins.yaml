@@ -89,4 +89,4 @@ Resources:
       DesiredCount: '1'
       TaskDefinition: !Ref JenkinsAgentTskDefn
     DependsOn:
-      - JenkinsMasterService
+      - JenkinsMasterservice
