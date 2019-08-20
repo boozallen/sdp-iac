@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
 ###Task & Execution Role
-  SDPContainerRole:
+  SDPExecutionRole:
     Type: AWS::IAM::Role
     Properties: 
       AssumeRolePolicyDocument: {
@@ -20,9 +20,8 @@ Resources:
       ManagedPolicyArns: 
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
       MaxSessionDuration: 3600
-      RoleName: SDPExecutionRole
 ### IAM Instance profile/ServiceRole
-  SDPExecutionRole:
+  SDPServiceRole:
     Type: AWS::IAM::Role
     Properties: 
       AssumeRolePolicyDocument: {
@@ -41,9 +40,21 @@ Resources:
       ManagedPolicyArns: 
         - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
       MaxSessionDuration: 3600
-      RoleName: SDPServiceRole
+
+  SDPInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      InstanceProfileName: ECS-InstanceProfile
+      Roles: 
+      - !Ref SDPServiceRole
+
+
+
 Outputs:
+  SDPInstanceProfile:
+    Value: !GetAtt SDPInstanceProfile.Arn
   SDPExecutionRole:
-    Value: !GetAtt SDPExecutionRole
+    Value: !GetAtt SDPExecutionRole.Arn
   SDPServiceRole:
-    Value: !GetAtt SDPServiceRole
+    Value: !GetAtt SDPServiceRole.Arn
+  

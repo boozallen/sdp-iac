@@ -1,63 +1,13 @@
-Description:  This template deploys a VPC, with a pair of public and private subnets spread
-  across two Availability Zones. 
-
-Parameters:
-  EnvironmentName:
-    Description: An environment name that will be prefixed to resource names
-    Type: String
-
-  VpcCIDR:
-    Description: Please enter the IP range (CIDR notation) for this VPC
-    Type: String
-    Default: 10.0.0.0/16
-
-  PrivateSubnet1CIDR:
-    Description: Please enter the IP range (CIDR notation) for the private subnet in the first Availability Zone
-    Type: String
-    Default: 10.0.20.0/24
-
-  PrivateSubnet2CIDR:
-    Description: Please enter the IP range (CIDR notation) for the private subnet in the second Availability Zone
-    Type: String
-    Default: 10.0.21.0/24
-
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters: 
+    VpcId: 
+      Type: AWS::EC2::VPC::Id
+      Description: Choose which VPC the security groups should be deployed to
 Resources:
-  VPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: !Ref VpcCIDR
-      EnableDnsSupport: true
-      EnableDnsHostnames: true
-      Tags:
-        - Key: Name
-          Value: !Ref EnvironmentName
-
-  PrivateSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: vpc-8443b4fd
-      AvailabilityZone: !Select [ 0, !GetAZs  '' ]
-      CidrBlock: !Ref PrivateSubnet1CIDR
-      MapPublicIpOnLaunch: false
-      Tags:
-        - Key: Name
-          Value: !Sub ${EnvironmentName} Private Subnet (AZ1)
-
-  PrivateSubnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: vpc-8443b4fd
-      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
-      CidrBlock: !Ref PrivateSubnet2CIDR
-      MapPublicIpOnLaunch: false
-      Tags:
-        - Key: Name
-          Value: !Sub ${EnvironmentName} Private Subnet (AZ2)
-
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties: 
-      VpcId: !Ref VPC
+      VpcId: !Ref VpcId
       GroupDescription: Security group for SDP environment
   InboundRule1:
     Type: 'AWS::EC2::SecurityGroupIngress'
@@ -66,8 +16,7 @@ Resources:
       IpProtocol: tcp
       FromPort: '80'
       ToPort: '80'
-      SourceSecurityGroupId: sg-12345678
-      SourceSecurityGroupOwnerId: '123456789012'
+   
   InboundRule2:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
@@ -75,8 +24,7 @@ Resources:
       IpProtocol: tcp
       FromPort: '8080'
       ToPort: '8080'
-      SourceSecurityGroupId: sg-12345678
-      SourceSecurityGroupOwnerId: '123456789012'
+  
   InboundRule3:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
@@ -84,8 +32,8 @@ Resources:
       IpProtocol: tcp
       FromPort: '50000'
       ToPort: '50000'
-      SourceSecurityGroupId: sg-12345678
-      SourceSecurityGroupOwnerId: '123456789012'
+   
+ 
   InboundRule4:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
@@ -93,8 +41,7 @@ Resources:
       IpProtocol: tcp
       FromPort: '9000'
       ToPort: '9000'
-      SourceSecurityGroupId: sg-12345678
-      SourceSecurityGroupOwnerId: '123456789012'
+
   InboundRule5:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
@@ -102,28 +49,15 @@ Resources:
       IpProtocol: tcp
       FromPort: '5432'
       ToPort: '5432'
-      SourceSecurityGroupId: sg-12345678
-      SourceSecurityGroupOwnerId: '123456789012'
+  
   OutboundRule:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
       IpProtocol: tcp
       FromPort: 0
       ToPort: 65535
-      SourceSecurityGroupId: sg-12345678
-      SourceSecurityGroupOwnerId: '123456789012'
-
-
-
+  
 Outputs:
-  VPC:
-    Description: A reference to the created VPC
-    Value: !Ref VPC
-
-  PrivateSubnet1:
-    Description: A reference to the private subnet in the 1st Availability Zone
-    Value: !Ref PrivateSubnet1
-
-  PrivateSubnet2:
-    Description: A reference to the private subnet in the 2nd Availability Zone
-    Value: !Ref PrivateSubnet2
+  SecurityGroups:
+        Description: A list of the security groups.
+        Value: !Join [ ",", [ !Ref SecurityGroup ]]

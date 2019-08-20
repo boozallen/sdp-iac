@@ -1,20 +1,25 @@
 ####Nested Template For Creating an ALB for SDP
 ####Missing Requirements
-####Security Group IDs, SubnetIDs, VPCID
 AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+  SubnetId:
+    Type: List<AWS::EC2::Subnet::Id>
+  PrivSubnetId:
+    Type: List<AWS::EC2::Subnet::Id>
+  ClusterSecurityGroup:
+    Type: List<AWS::EC2::SecurityGroup::Id>
+
 Resources:
 ####Create ALB
   SDPALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties: 
       Name: SDP-ECS-ALB
-      Scheme: internal
-      SecurityGroups: 
-        - sg-052c5a74
-        - sg-6e8a1510
-      Subnets: 
-        - subnet-4b539267
-        - subnet-afc8fcca
+      Scheme: internet-facing
+      SecurityGroups: !Ref ClusterSecurityGroup
+      Subnets: !Ref SubnetId
       Type: application
 ####Create Sonarqube ALB Listener
   SDPALBListener:
@@ -43,7 +48,7 @@ Resources:
      Port: 80
      Protocol: HTTP
      UnhealthyThresholdCount: 2
-     VpcId: vpc-8443b4fd
+     VpcId: !Ref VpcId
 #####Create Jenkins Target Group
   JenkinsTG:
    Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -61,7 +66,7 @@ Resources:
      Port: 80
      Protocol: HTTP
      UnhealthyThresholdCount: 2
-     VpcId: vpc-8443b4fd
+     VpcId: !Ref VpcId
 #####Create ALB Listener Rule
   SonarqubeALBListenerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
@@ -95,9 +100,7 @@ Resources:
       IpAddressType: ipv4
       Name: SDP-ECS-NLB
       Scheme: internal
-      Subnets: 
-        - subnet-4b539267
-        - subnet-afc8fcca
+      Subnets: !Ref PrivSubnetId
       Type: network
 #####Create Jenkins Agent Target Group
   JenkinsAgentTG:
@@ -115,7 +118,7 @@ Resources:
      Port: 80
      Protocol: TCP
      UnhealthyThresholdCount: 3
-     VpcId: vpc-8443b4fd
+     VpcId: !Ref VpcId
 
 ####Create NLB Listener
   SDPNLBListener1:

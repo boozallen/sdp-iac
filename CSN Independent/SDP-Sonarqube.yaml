@@ -3,15 +3,9 @@
 ####Referenced images need to be pushed to Dockerhub.
 AWSTemplateFormatVersion: 2010-09-09
 Parameters:
-    DBName:
-        Type: String
     DBUser:
         Type: String
     DBPassword:
-        Type: String
-    DBIdentifier:
-        Type: String
-    SubnetGroupName:
         Type: String
     SubnetId:
         Type: List<AWS::EC2::Subnet::Id>
@@ -32,7 +26,7 @@ Resources:
       ContainerDefinitions:
         - 
           Name: 'sonarqube-container'
-          Image: '686883784036.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:sonarqube'
+          Image: '495692436021.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:sonarqube'
           Cpu: '2048'
           Memory: '3072'
           Essential: true
@@ -47,7 +41,7 @@ Resources:
             - Name: 'SONARQUBE_JDBC_PASSWORD'
               Value: !Ref DBPassword
             - Name: 'SONARQUBE_JDBC_URL'
-              Value: !Sub 'jdbc:postgresql://${MyDB.Endpoint.Address}:5432/${DBName}'
+              Value: !Sub 'jdbc:postgresql://${MyDB.Endpoint.Address}:5432/sonarqube'
       ExecutionRoleArn: !Ref SDPExecutionRole
       Memory: '3072'
       NetworkMode: 'bridge'
@@ -56,15 +50,15 @@ Resources:
       - MyDB
   MyDB:
     Properties:
-      DBName: !Ref DBName
-      DBInstanceIdentifier: !Ref DBIdentifier
+      DBName: sonarqube
+      DBInstanceIdentifier: sonarqubeDB
       AllocatedStorage: '100'
       DBInstanceClass: db.t3.small
       Engine: postgres
       PubliclyAccessible: false
       MasterUsername: !Ref DBUser
       MasterUserPassword: !Ref DBPassword
-      DBSubnetGroupName: !Ref SubnetGroupName
+      DBSubnetGroupName: !Ref MySubnetGrp
       VPCSecurityGroups: !Ref DBSecGroups
     Type: 'AWS::RDS::DBInstance'
     DependsOn:
@@ -72,7 +66,7 @@ Resources:
   MySubnetGrp:
     Properties:
       DBSubnetGroupDescription: Subnet group for SDP RDS Postgres
-      DBSubnetGroupName: !Ref SubnetGroupName 
+      DBSubnetGroupName: SDP-ECS 
       SubnetIds: !Ref 'SubnetId'
     Type: "AWS::RDS::DBSubnetGroup"
   Sonarqubeservice:

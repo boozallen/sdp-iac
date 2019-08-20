@@ -1,6 +1,5 @@
 ####Jenkins Nested Template for SDP-Master 
 ####Missing Requirements
-####Referenced images need to be pushed to Dockerhub
 AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   SDPCluster:
@@ -24,7 +23,7 @@ Resources:
       ContainerDefinitions:
         - 
           Name: 'jenkins-master-container'
-          Image: '686883784036.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:jenkinsmaster'
+          Image: '495692436021.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:jenkins-master'
           Cpu: '2048'
           Memory: '3072'
           Essential: true
@@ -48,7 +47,7 @@ Resources:
       ContainerDefinitions:
         - 
           Name: 'jenkins_agent-container'
-          Image: '686883784036.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:jenkins-agent'
+          Image: '495692436021.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:jenkins-agent'
           Cpu: '2048'
           Memory: '3072'
           Essential: true
@@ -81,8 +80,6 @@ Resources:
         - ContainerName: jenkins-master-container
           ContainerPort: '50000'
           TargetGroupArn: !Ref JenkinsAgentTG
-
-
     DependsOn:
       - JenkinsMasterTskDefn
   JenkinsAgentservice:
@@ -92,4 +89,4 @@ Resources:
       DesiredCount: '1'
       TaskDefinition: !Ref JenkinsAgentTskDefn
     DependsOn:
-      - JenkinsAgentTskDefn
+      - JenkinsMasterService
