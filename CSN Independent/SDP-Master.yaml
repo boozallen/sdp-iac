@@ -1,0 +1,132 @@
+####Master Template For Creating SDP on AWS ECS
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  DBUser:
+      Description: The database admin account username
+      Type: String
+      MinLength: 1
+      MaxLength: 64
+      AllowedPattern: '[a-zA-Z0-9]*'
+      ConstraintDescription : must begin with a letter and contain only alphanumeric characters.
+  DBPassword:
+      Description: The database admin account password
+      Type: String
+      MinLength: 1
+      MaxLength: 64
+      AllowedPattern: '[a-zA-Z0-9]*'
+      ConstraintDescription : must contain only alphanumeric characters.
+  KeyName:
+      Type: AWS::EC2::KeyPair::KeyName
+      Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
+  DesiredCapacity:
+      Type: Number
+      Default: '3'
+      Description: Number of instances to launch in your ECS cluster.
+  MaxSize:
+    Type: Number
+    Default: '3'
+    Description: Maximum number of instances that can be launched in your ECS cluster.
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: m4.2xlarge
+    AllowedValues: [t2.micro, t2.small, t2.medium, t2.large, m3.medium, m3.large,
+      m3.xlarge, m3.2xlarge, m4.large, m4.xlarge, m4.2xlarge, m4.4xlarge, m4.10xlarge,
+      c4.large, c4.xlarge, c4.2xlarge, c4.4xlarge, c4.8xlarge, c3.large, c3.xlarge,
+      c3.2xlarge, c3.4xlarge, c3.8xlarge, r3.large, r3.xlarge, r3.2xlarge, r3.4xlarge,
+      r3.8xlarge, i2.xlarge, i2.2xlarge, i2.4xlarge, i2.8xlarge]
+    ConstraintDescription: Please choose a valid instance type.
+
+Resources:
+####CREATE VPC
+  VPC01:
+      Type: AWS::CloudFormation::Stack
+      Properties:
+          TemplateURL: https://tristan-bucket-bah.s3.amazonaws.com/vpc01.yaml
+          Parameters:
+              EnvironmentName:    !Ref AWS::StackName
+              VpcCIDR:            10.80.0.0/16
+              PublicSubnet1CIDR:  10.80.8.0/21
+              PublicSubnet2CIDR:  10.80.16.0/21
+              PrivateSubnet1CIDR: 10.80.24.0/21
+              PrivateSubnet2CIDR: 10.80.32.0/21
+  SecurityGroups01:
+      Type: AWS::CloudFormation::Stack
+      Properties:
+          TemplateURL: https://tristan-bucket-bah.s3.amazonaws.com/security-groups01.yaml
+          Parameters:
+              EnvironmentName: !Ref AWS::StackName
+              VPC: !GetAtt VPC01.Outputs.VPC
+  Bastion01:
+      Type: AWS::CloudFormation::Stack
+      DependsOn: 
+      - SecurityGroups01
+      Properties:
+          TemplateURL: https://tristan-bucket-bah.s3.amazonaws.com/bastion01.yaml
+          Parameters:
+              KeyPairName: !Ref KeyName
+              EnvironmentName: !Ref AWS::StackName
+              VPC: !GetAtt VPC01.Outputs.VPC
+              PublicSubnet1: !GetAtt VPC01.Outputs.PublicSubnet1
+              PublicSubnet2: !GetAtt VPC01.Outputs.PublicSubnet2
+              BastionSecurityGroup: !GetAtt SecurityGroups01.Outputs.SecurityGroups
+
+####CREATE IAM Roles for ECS 
+  SDPIAM: 
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://tristan-bucket-bah.s3.amazonaws.com/SDP-IAM.yaml
+
+####CREATE ECS CLUSTER
+  SDPECSCluster: 
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters: 
+        KeyPairName: !Ref KeyName
+        VpcId: !GetAtt VPC01.Outputs.VPC 
+        SubnetId: !GetAtt VPC01.Outputs.PublicSubnets
+        DesiredCapacity: !Ref DesiredCapacity
+        MaxSize: !Ref MaxSize
+        InstanceType: !Ref InstanceType
+        InstanceProfile: !GetAtt SDPIAM.Outputs.SDPInstanceProfile
+        ClusterSecurityGroup: !GetAtt SecurityGroups01.Outputs.SecurityGroups
+      TemplateURL: https://tristan-bucket-bah.s3.amazonaws.com/SDP-Cluster.yaml#
+
+####CREATE ALB
+  SDPALB: 
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        VpcId: !GetAtt VPC01.Outputs.VPC
+        ClusterSecurityGroup: !GetAtt SecurityGroups01.Outputs.SecurityGroups
+        SubnetId: !GetAtt VPC01.Outputs.PublicSubnets
+        PrivSubnetId: !GetAtt VPC01.Outputs.PrivateSubnets
+      TemplateURL: https://tristan-bucket-bah.s3.amazonaws.com/SDP-ALB.yaml
+    
+#####CREATE SONARQUBE
+  SonarqubeStack: 
+   Type: AWS::CloudFormation::Stack
+   Properties:
+     Parameters: 
+      DBUser: !Ref DBUser
+      DBPassword: !Ref DBPassword  
+      SubnetId: !GetAtt VPC01.Outputs.PrivateSubnets
+      DBSecGroups: !GetAtt SecurityGroups01.Outputs.SecurityGroups
+      SDPCluster: !GetAtt SDPECSCluster.Outputs.SDPCluster
+      SonarqubeTG: !GetAtt SDPALB.Outputs.SonarqubeTargetGroup
+      SDPExecutionRole: !GetAtt SDPIAM.Outputs.SDPExecutionRole 
+     TemplateURL: https://tristan-bucket-bah.s3.amazonaws.com/SDP-Sonarqube.yaml
+
+
+####CREATE JENKINS
+  JenkinsStack: 
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters: 
+          SDPCluster: !GetAtt SDPECSCluster.Outputs.SDPCluster 
+          JenkinsTG: !GetAtt SDPALB.Outputs.JenkinsTargetGroup
+          JenkinsAgentTG: !GetAtt SDPALB.Outputs.JenkinsAgentTargetGroup
+          DNSName: !GetAtt SDPALB.Outputs.DNSName
+          NLBDNSName: !GetAtt SDPALB.Outputs.NLBDNSName 
+          SDPExecutionRole: !GetAtt SDPIAM.Outputs.SDPExecutionRole
+      TemplateURL: https://tristan-bucket-bah.s3.amazonaws.com/SDP-Jenkins.yaml
