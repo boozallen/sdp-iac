@@ -1,10 +1,13 @@
---------------------------
-SDP Infrastructure as Code
---------------------------
+--------------------------------------------------------
+SDP Infrastructure as Code for an AWS Public Environment
+--------------------------------------------------------
 
 
-Infrastructure as Code for deploying the Solutions Delivery Platform. 
+Infrastructure as Code for deploying the Solutions Delivery Platform on the AWS ECS hosted platform. 
 
-Different platforms will be organized by Branch. 
+Prerequisite Requirements:
+-   The AWS user account running the templates must have appropriate IAM credentials.
+-   The AWS account must have a service limit which can accomodate the resources created by the templates.
+-   An EC2 Keypair must exist on the account prior to running the templates.
 
 
