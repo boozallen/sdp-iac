@@ -1,8 +1,12 @@
 ####ECS Cluster Nested Template for SDP-Master 
 ####Missing Requirements
 ####Subnets and a Security group need to be created and referenced.
+####IAM Instance profile needs to be created and referenced.
+####References Shared Key
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
   VpcId:
     Type: AWS::EC2::VPC::Id
   SubnetId:
@@ -15,15 +19,6 @@ Parameters:
   InstanceType:
     Description: EC2 instance type
     Type: String
-  InstanceProfile:
-    Type: String
-  KeyPairName:
-    Description: Name of an existing EC2 KeyPair to enable SSH access to the machine instances.
-    Type: "AWS::EC2::KeyPair::KeyName"
-    ConstraintDescription: Must be the name of an existing EC2 KeyPair.
-    Default: bdso-def
-  ClusterSecurityGroup:
-    Type: List<AWS::EC2::SecurityGroup::Id>
 Mappings:
   AWSRegionToAMI:
     us-east-1:
@@ -47,20 +42,20 @@ Resources:
       MinSize: '1'
       MaxSize: !Ref 'MaxSize'
       DesiredCapacity: !Ref 'DesiredCapacity'
-    #CreationPolicy:
-    #  ResourceSignal:
-    #    Timeout: PT15M
-    #UpdatePolicy:
-    #  AutoScalingReplacingUpdate:
-    #    WillReplace: 'true'
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+    UpdatePolicy:
+      AutoScalingReplacingUpdate:
+        WillReplace: 'true'
   ContainerInstances:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       ImageId: !FindInMap [AWSRegionToAMI, !Ref 'AWS::Region', AMIID]
-      SecurityGroups: !Ref ClusterSecurityGroup
+      SecurityGroups: [sg-6e8a1510]
       InstanceType: !Ref 'InstanceType'
-      KeyName: !Ref KeyPairName
-      IamInstanceProfile: !Ref InstanceProfile
+      KeyName: !Ref 'KeyName'
+      IamInstanceProfile: 'arn:aws:iam::686883784036:instance-profile/BAHServiceRoleForEC2Containers'
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe

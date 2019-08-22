@@ -1,25 +1,20 @@
 ####Nested Template For Creating an ALB for SDP
 ####Missing Requirements
+####Security Group IDs, SubnetIDs, VPCID
 AWSTemplateFormatVersion: "2010-09-09"
-Parameters:
-  VpcId:
-    Type: AWS::EC2::VPC::Id
-  SubnetId:
-    Type: List<AWS::EC2::Subnet::Id>
-  PrivSubnetId:
-    Type: List<AWS::EC2::Subnet::Id>
-  ClusterSecurityGroup:
-    Type: List<AWS::EC2::SecurityGroup::Id>
-
 Resources:
 ####Create ALB
   SDPALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties: 
       Name: SDP-ECS-ALB
-      Scheme: internet-facing
-      SecurityGroups: !Ref ClusterSecurityGroup
-      Subnets: !Ref SubnetId
+      Scheme: internal
+      SecurityGroups: 
+        - sg-052c5a74
+        - sg-6e8a1510
+      Subnets: 
+        - subnet-4b539267
+        - subnet-afc8fcca
       Type: application
 ####Create Sonarqube ALB Listener
   SDPALBListener:
@@ -48,7 +43,7 @@ Resources:
      Port: 80
      Protocol: HTTP
      UnhealthyThresholdCount: 2
-     VpcId: !Ref VpcId
+     VpcId: vpc-8443b4fd
 #####Create Jenkins Target Group
   JenkinsTG:
    Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -66,7 +61,7 @@ Resources:
      Port: 80
      Protocol: HTTP
      UnhealthyThresholdCount: 2
-     VpcId: !Ref VpcId
+     VpcId: vpc-8443b4fd
 #####Create ALB Listener Rule
   SonarqubeALBListenerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
@@ -100,13 +95,15 @@ Resources:
       IpAddressType: ipv4
       Name: SDP-ECS-NLB
       Scheme: internal
-      Subnets: !Ref PrivSubnetId
+      Subnets: 
+        - subnet-4b539267
+        - subnet-afc8fcca
       Type: network
-#####Create Jenkins Agent Target Group
+
   JenkinsAgentTG:
    Type: AWS::ElasticLoadBalancingV2::TargetGroup
    DependsOn: 
-    - SDPNLB
+    - SDPALB
    Properties: 
      HealthCheckEnabled: true
      HealthCheckIntervalSeconds: 10
@@ -118,14 +115,13 @@ Resources:
      Port: 80
      Protocol: TCP
      UnhealthyThresholdCount: 3
-     VpcId: !Ref VpcId
+     VpcId: vpc-8443b4fd
 
 ####Create NLB Listener
   SDPNLBListener1:
      Type: AWS::ElasticLoadBalancingV2::Listener
      DependsOn: 
       - SDPNLB
-      - JenkinsAgentTG
      Properties:
        DefaultActions:
          - Type: forward
@@ -136,7 +132,6 @@ Resources:
   SDPNLBListener2:
      DependsOn: 
       - SDPNLB
-      - JenkinsAgentTG
      Type: AWS::ElasticLoadBalancingV2::Listener
      Properties:
        DefaultActions:
@@ -145,6 +140,8 @@ Resources:
        LoadBalancerArn: !Ref SDPNLB
        Port: 50000
        Protocol: "TCP"
+
+
 
 Outputs:
   SonarqubeTargetGroup:

@@ -1,5 +1,7 @@
 ####Jenkins Nested Template for SDP-Master 
 ####Missing Requirements
+####Referenced images need to be pushed to ECR.
+####Execution Role ARN and TaskRoleARN
 AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   SDPCluster:
@@ -12,8 +14,6 @@ Parameters:
     Type: String
   NLBDNSName:
     Type: String
-  SDPExecutionRole:
-    Type: String
 Resources:
   JenkinsMasterTskDefn:
     Type: 'AWS::ECS::TaskDefinition'
@@ -23,7 +23,7 @@ Resources:
       ContainerDefinitions:
         - 
           Name: 'jenkins-master-container'
-          Image: '495692436021.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:jenkins-master'
+          Image: '686883784036.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:jenkinsmaster'
           Cpu: '2048'
           Memory: '3072'
           Essential: true
@@ -35,10 +35,10 @@ Resources:
           Environment:
             - Name: 'JENKINS_OPTS'
               Value: '--prefix=/jenkins'
-      ExecutionRoleArn: !Ref SDPExecutionRole
+      ExecutionRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
       Memory: '3072'
       NetworkMode: 'bridge'
-      TaskRoleArn: !Ref SDPExecutionRole
+      TaskRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
   JenkinsAgentTskDefn:
     Type: 'AWS::ECS::TaskDefinition'
     Properties:
@@ -47,7 +47,7 @@ Resources:
       ContainerDefinitions:
         - 
           Name: 'jenkins_agent-container'
-          Image: '495692436021.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:jenkins-agent'
+          Image: '686883784036.dkr.ecr.us-east-1.amazonaws.com/ecs-sdp:jenkins-agent'
           Cpu: '2048'
           Memory: '3072'
           Essential: true
@@ -63,10 +63,10 @@ Resources:
             - Name: 'JENKINS_TUNNEL'
               Value: !Sub '${NLBDNSName}:50000'
           Privileged: True
-      ExecutionRoleArn: !Ref SDPExecutionRole
+      ExecutionRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
       Memory: '3072'
       NetworkMode: 'bridge'
-      TaskRoleArn: !Ref SDPExecutionRole
+      TaskRoleArn: 'arn:aws:iam::686883784036:role/BAHServiceRoleForECSTaskExecution'
   JenkinsMasterservice:
     Type: AWS::ECS::Service
     Properties:
@@ -80,6 +80,8 @@ Resources:
         - ContainerName: jenkins-master-container
           ContainerPort: '50000'
           TargetGroupArn: !Ref JenkinsAgentTG
+
+
     DependsOn:
       - JenkinsMasterTskDefn
   JenkinsAgentservice:
@@ -89,4 +91,4 @@ Resources:
       DesiredCount: '1'
       TaskDefinition: !Ref JenkinsAgentTskDefn
     DependsOn:
-      - JenkinsMasterService
+      - JenkinsAgentTskDefn
