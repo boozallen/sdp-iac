@@ -57,19 +57,6 @@ Resources:
           Parameters:
               EnvironmentName: !Ref AWS::StackName
               VPC: !GetAtt VPC01.Outputs.VPC
-  Bastion01:
-      Type: AWS::CloudFormation::Stack
-      DependsOn: 
-      - SecurityGroups01
-      Properties:
-          TemplateURL: https://tristan-bucket-bah.s3.amazonaws.com/bastion01.yaml
-          Parameters:
-              KeyPairName: !Ref KeyName
-              EnvironmentName: !Ref AWS::StackName
-              VPC: !GetAtt VPC01.Outputs.VPC
-              PublicSubnet1: !GetAtt VPC01.Outputs.PublicSubnet1
-              PublicSubnet2: !GetAtt VPC01.Outputs.PublicSubnet2
-              BastionSecurityGroup: !GetAtt SecurityGroups01.Outputs.SecurityGroups
 
 ####CREATE IAM Roles for ECS 
   SDPIAM: 
