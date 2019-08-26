@@ -1,5 +1,4 @@
 ####Nested Template For Creating an ALB for SDP
-####Missing Requirements
 AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
   VpcId:

@@ -1,6 +1,4 @@
 ####Sonarqube Nested Template for SDP-Master
-####Missing Requirements
-####Referenced images need to be pushed to Dockerhub.
 AWSTemplateFormatVersion: 2010-09-09
 Parameters:
     DBUser:
