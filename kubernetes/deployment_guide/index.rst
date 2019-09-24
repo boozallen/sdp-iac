@@ -3,6 +3,6 @@ Vanilla Kubernetes
 ------------------
 
 
-.. important:
+.. important::
 
    Coming soon!
