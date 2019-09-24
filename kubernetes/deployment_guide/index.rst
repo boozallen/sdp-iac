@@ -5,4 +5,4 @@ Vanilla Kubernetes
 
 .. important:
 
-        Coming soon!
+   Coming soon!

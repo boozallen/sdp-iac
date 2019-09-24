@@ -32,11 +32,10 @@ docs: ## builds documentation in _build/html
 		docker run -p 8000:8000 -v $(shell pwd):/app $(REPO_NAME)-docs sphinx-autobuild -b html $(ALLSPHINXOPTS) . $(BUILDDIR)/html -H 0.0.0.0;\
 		cd - ;\
 	elif [ "$(goal)" = "deploy" ]; then\
-		$(eval old_remote := $(shell git remote get-url origin)) \
-		git remote set-url origin https://$(user):$(token)@github.com/$(ORG_NAME)/$(REPO_NAME).git ;\
-		docker run -v $(shell pwd):/app $(REPO_NAME)-docs sphinx-versioning push --show-banner docs gh-pages . ;\
-		echo git remote set-url origin $(old_remote) ;\
-		git remote set-url origin $(old_remote) ;\
+                docker run -v $(shell pwd):/app $(REPO_NAME)-docs $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O);\
+		git add docs/*;\
+		git commit -m "updating documentation";\
+		git push;\
 	else\
 		docker run -v $(shell pwd):/app $(REPO_NAME)-docs $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) ;\
 	fi
