@@ -28,7 +28,7 @@ The following table lists the configurable parameters of the Sonarqube chart and
 | `securityContext.runAsGroup`                   | groupid to run sonarqube server as |  `999`                                     |
 | `ingress.enabled`                           | Flag for enabling ingress                 | false                                      |
 | `ingress.labels`                            | Ingress additional labels                 | `{}`                                       |
-| `ingress.hosts[0].name`                     | Hostname to your SonarQube installation   | `sonar.organization.com`                   |
+| `ingress.hosts[0].name`                     | Hostname to your SonarQube installation   | `sonar.sdp.com`                   |
 | `ingress.hosts[0].path`                     | Path within the URL structure             | /                                          |
 | `ingress.tls`                               | Ingress secrets for TLS certificates      | `[]`                                       |
 | `livenessProbe.sonarWebContext`             | SonarQube web context for livenessProbe   | /                                          |
