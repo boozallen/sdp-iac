@@ -1,0 +1,6 @@
+dependencies:
+- name: postgresql
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 0.8.3
+digest: sha256:7669c2dcb2741e52c61240019803c5a8a0061e51195060b2bd3b8176648faa63
+generated: "2019-08-25T20:25:52.477364-04:00"

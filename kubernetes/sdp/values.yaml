@@ -1,0 +1,7 @@
+
+sdp-jenkins:
+  peristentSlaveEnabled: true
+  numAgents: 1 
+
+sdp-sonarqube:
+  enabled: true
