@@ -1,0 +1,31 @@
+{{- if .Values.route.enabled }}
+{{- $serviceName := include "sonarqube.fullname" . -}}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ template "sonarqube.fullname" . }}
+  labels:
+    app: {{ template "sonarqube.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- if .Values.route.labels }}
+{{ toYaml .Values.route.labels | indent 4 }}
+{{- end }}
+{{- if .Values.route.annotations }}
+  annotations:
+{{ toYaml .Values.route.annotations | indent 4 }}
+{{- end }}
+spec:
+  host: {{ .Values.route.path }}
+  port:
+    targetPort: 9000
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: {{ $serviceName }}
+    weight: 100
+  wildcardPolicy: None
+{{- end }}

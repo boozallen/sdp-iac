@@ -1,0 +1,80 @@
+{{- if .Values.peristentSlaveEnabled }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    "app.kubernetes.io/name": '{{ template "jenkins.name" .}}'
+    "helm.sh/chart": "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    "app.kubernetes.io/managed-by": "{{ .Release.Service }}"
+    "app.kubernetes.io/instance": "{{ .Release.Name }}"
+    "app.kubernetes.io/component": "{{ .Values.agent.componentName }}"
+  name: {{ template "jenkins.fullname" . }}-agent
+  namespace: {{ template "jenkins.namespace" . }}
+spec:
+  replicas: {{ .Values.numAgents }}
+  selector:
+    matchLabels:
+      "app.kubernetes.io/component": "{{ .Values.agent.componentName }}"
+      "app.kubernetes.io/instance": "{{ .Release.Name }}"
+  template:
+    metadata:
+      labels:
+        "app.kubernetes.io/name": '{{ template "jenkins.name" .}}'
+        "helm.sh/chart": "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        "app.kubernetes.io/managed-by": "{{ .Release.Service }}"
+        "app.kubernetes.io/instance": "{{ .Release.Name }}"
+        "app.kubernetes.io/component": "{{ .Values.agent.componentName }}"
+    spec:
+      {{- if .Values.agent.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.agent.nodeSelector | indent 8 }}
+      {{- end }}
+      containers:
+      - env:
+        - name: JENKINS_URL
+          value: http://{{ template "jenkins.fullname" . }}:8080/
+        - name: JENKINS_TUNNEL
+          value: {{ template "jenkins.fullname" . }}-agent:50000
+        - name: EXECUTORS
+          value: "1"
+        - name: JENKINS_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: sdp-jenkins-secret
+        - name: JENKINS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: token
+              name: sdp-jenkins-secret
+        image: {{ .Values.agent.image }}:{{ .Values.agent.tag }}
+        imagePullPolicy: {{ .Values.agent.imagePullPolicy }}
+        name: jenkins-agent
+        resources:
+          limits:
+            cpu: "2"
+            memory: 6000Mi
+          requests:
+            cpu: "2"
+            memory: 6000Mi
+        securityContext:
+          privileged: {{ .Values.agent.privileged }}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker-storage
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      serviceAccountName: "{{ template "jenkins.serviceAccountAgentName" . }}"
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: docker-storage
+        emptyDir: {}
+{{- if .Values.agent.imagePullSecretName }}
+      imagePullSecrets:
+      - name: {{ .Values.agent.imagePullSecretName }}
+{{- end -}}
+
+{{- end }}
