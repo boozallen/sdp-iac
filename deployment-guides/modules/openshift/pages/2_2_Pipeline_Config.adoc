@@ -2,7 +2,7 @@
 
 There are as many ways to create a set up a Pipeline Configuration Repository as there are ways to create software. This guide should provide a good foundation to build off of.
 
-This page covers the creation of a simple pipeline configuration repository, a repository containing files that define one or more pipelines, with a single governance tier in the root. xref:jte:goverance:governance_tier.adoc[You can learn more about pipeline goverance here].
+This page covers the creation of a simple pipeline configuration repository, a repository containing files that define one or more pipelines, with a single governance tier in the root. xref:jte:governance:governance_tier.adoc[You can learn more about pipeline goverance here].
 
 == Create a Repository
 
@@ -217,4 +217,4 @@ You should be ready to move onto the next section, which covers creating a Helm 
 * xref:jte:pipeline-templating:what_is_a_pipeline_template.adoc[You can learn more about writing pipeline templates here]
 * xref:jte:pipeline-templating:configuration_files.adoc[You can learn more about writing pipeline config files here]
 * xref:sdp-libraries:index.adoc[You can learn more about the SDP pipeline libraries here]
-* xref:jte:library-development:index.adoc[You can learn more about writing your own pipeline libraries here]
+* xref:jte:library-development:getting_started.adoc[You can learn more about writing your own pipeline libraries here]
