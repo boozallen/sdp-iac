@@ -166,7 +166,7 @@ Although the sdp library doesn't provide the implementation for any of the steps
 
 [NOTE]
 ====
-xref:sdp-libraries:index.adoc[You can learn more about the SDP pipeline libraries here]
+xref:sdp-libraries:ROOT:index.adoc[You can learn more about the SDP pipeline libraries here]
 ====
 
 === The Application Environments
@@ -216,5 +216,5 @@ You should be ready to move onto the next section, which covers creating a Helm 
 
 * xref:jte:pipeline-templating:what_is_a_pipeline_template.adoc[You can learn more about writing pipeline templates here]
 * xref:jte:pipeline-templating:configuration_files.adoc[You can learn more about writing pipeline config files here]
-* xref:sdp-libraries:index.adoc[You can learn more about the SDP pipeline libraries here]
+* xref:sdp-libraries:ROOT:index.adoc[You can learn more about the SDP pipeline libraries here]
 * xref:jte:library-development:getting_started.adoc[You can learn more about writing your own pipeline libraries here]

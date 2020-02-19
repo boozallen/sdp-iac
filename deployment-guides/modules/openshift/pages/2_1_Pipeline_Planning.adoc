@@ -23,7 +23,7 @@ OpenShift has some https://docs.openshift.com/container-platform/3.9/creating_im
 
 === Testing
 
-The SDP currently has libraries for tools that run xref:sdp-libraries:a11y:index.adoc[code quality tests], xref:sdp-libraries:a11y:index.adoc[accessibility compliance (508) tests], xref:sdp-libraries:zap:index.adoc[penetration tests], and more. Which ones you should use depends on the needs of your application. Automated tests like these are useful for detecting issues earlier in a feature's lifecycle, where it's easier (and cheaper) to correct.
+The SDP currently has libraries for tools that run xref:sdp-libraries:a11y:index.adoc[code quality tests], xref:sdp-libraries:a11y:index.adoc[accessibility compliance (508) tests], xref:sdp-libraries:owasp_zap:index.adoc[penetration tests], and more. Which ones you should use depends on the needs of your application. Automated tests like these are useful for detecting issues earlier in a feature's lifecycle, where it's easier (and cheaper) to correct.
 
 === Deploying
 
