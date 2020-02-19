@@ -5,9 +5,9 @@
 From the root of the sdp-helm-chart directory, run the command
 
 [source,sh]
-====
+----
 ./installer.sh
-====
+----
 
 Supply a GitHub username and password (or access token) when prompted.
 
@@ -21,11 +21,11 @@ Should the installer script fail, see if you can use the error message to resolv
 After the SDP has successfully been installed, you should see this message:
 
 [source,text]
-====
+----
 Successfully Installed the Solutions Delivery Platform.
 
 ✔ Solutions Delivery Platform Installed
-====
+----
 
 While the SDP has been installed on OpenShift, it needs a few minutes to prepare and set up. Go to the overview page for the "sdp" project in your OpenShift cluster's web console to monitor the progress. The overview page should also show the links for Jenkins and any other tools you opted to install.
 

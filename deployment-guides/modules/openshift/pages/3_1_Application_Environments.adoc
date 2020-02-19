@@ -63,7 +63,7 @@ You need to know how many environments you want, as well as abbreviated names fo
 [NOTE]
 ====
 These abbreviated names map to the http://localhost:8000/pages/jte/docs/pages/Templating/primitives/application_environments.html[application environments] "short names" of the in your pipeline configuration file(s).
-=====
+====
 
 You also need a name for the project hosting the container images. This is the _full name of the project_ and will not necessarily include the prefix (unlike the other projects being created). In the example above, that project is called "red-hat-summit".
 
