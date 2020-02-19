@@ -2,7 +2,7 @@
 
 == Overview
 
-In order to use the xref:sdp-libraries:openshift:ROOT:index.adoc[OpenShift library]'s ``deploy_to()`` step, there needs to be set of pre-configured projects in OpenShift:
+In order to use the xref:sdp-libraries:openshift:index.adoc[OpenShift library]'s ``deploy_to()`` step, there needs to be set of pre-configured projects in OpenShift:
 
 * The application environments, one or more Openshift projects that will host the application (e.g. "my-app-dev" & "my-app-prod")
 * A project to host container images that are shared between the application environments

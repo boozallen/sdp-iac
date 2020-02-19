@@ -6,7 +6,7 @@ To achieve disaster recovery, auditability, rollbacks, and infrastructure as cod
 
 https://helm.sh/[Helm] is a tool for templating and managing Kubernetes configuration files and, by extension, OpenShift configuration files. Any element in OpenShift can be expressed as as yaml or JSON. Helm lets you take that yaml and organize it, turn them into a template, and, through tiller, use them to deploy to your cluster.
 
-This Helm chart repository is what the xref:sdp-libraries:openshift:ROOT:index.adoc[OpenShift SDP library] will use to deploy your application to OpenShift. In it, you should create a Helm chart that defines the various https://docs.openshift.com/container-platform/3.11/dev_guide/deployments/how_deployments_work.html[DeploymentConfigs], https://docs.openshift.com/container-platform/3.11/architecture/core_concepts/pods_and_services.html#services[Services], https://docs.openshift.com/container-platform/3.11/dev_guide/routes.html[Routes], and other objects your application needs to function.
+This Helm chart repository is what the xref:sdp-libraries:openshift:index.adoc[OpenShift SDP library] will use to deploy your application to OpenShift. In it, you should create a Helm chart that defines the various https://docs.openshift.com/container-platform/3.11/dev_guide/deployments/how_deployments_work.html[DeploymentConfigs], https://docs.openshift.com/container-platform/3.11/architecture/core_concepts/pods_and_services.html#services[Services], https://docs.openshift.com/container-platform/3.11/dev_guide/routes.html[Routes], and other objects your application needs to function.
 
 == Create a Repository
 
@@ -92,7 +92,7 @@ The SDP will automatically update the image sha value discussed earlier, but you
 
 == Updating the Pipeline Configuration
 
-If you recall from earlier in this guide, in the page on the xref:2_2_Pipeline_Config.adoc[Pipeline Configuration Repository], there were some settings for the xref:sdp-libraries:openshift:ROOT:index.adoc[OpenShift SDP library] that may not have been clear before this point in the guide.
+If you recall from earlier in this guide, in the page on the xref:2_2_Pipeline_Config.adoc[Pipeline Configuration Repository], there were some settings for the xref:sdp-libraries:openshift:index.adoc[OpenShift SDP library] that may not have been clear before this point in the guide.
 
 [source,groovy]
 ----
@@ -143,6 +143,6 @@ In order to enable automatic deployments to OpenShift, this guide covered the fo
 
 == Next Steps
 
-* xref:sdp-libraries:openshift:ROOT:index.adoc[More on the OpenShift SDP library]
+* xref:sdp-libraries:openshift:index.adoc[More on the OpenShift SDP library]
 * https://docs.helm.sh/developing_charts/[More on writing Helm charts]
 * https://docs.helm.sh/chart_template_guide/[example Helm chart]

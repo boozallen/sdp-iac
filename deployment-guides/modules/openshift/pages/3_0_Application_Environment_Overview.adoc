@@ -2,7 +2,7 @@
 
 == Section 3 Overview
 
-The xref:sdp-libraries:openshift:ROOT:index.adoc[OpenShift library] has a ``deploy_to()`` that can be used to deploy the most recent build of a
+The xref:sdp-libraries:openshift:index.adoc[OpenShift library] has a ``deploy_to()`` that can be used to deploy the most recent build of a
 particular service to a given https://docs.openshift.com/container-platform/3.11/architecture/core_concepts/projects_and_users.html#projects[OpenShift project]. The first part of this section covers how to create and configure the target OpenShift projects. The second part goes over how to create a Helm repository, defines how your application is deployed.
 
 == Before You Begin

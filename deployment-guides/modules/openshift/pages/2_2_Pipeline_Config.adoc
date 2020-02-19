@@ -166,7 +166,7 @@ Although the sdp library doesn't provide the implementation for any of the steps
 
 [NOTE]
 ====
-xref:sdp-libraries:ROOT:index.adoc[You can learn more about the SDP pipeline libraries here]
+xref:sdp-libraries:index.adoc[You can learn more about the SDP pipeline libraries here]
 ====
 
 === The Application Environments
@@ -185,8 +185,8 @@ application_environments{
 }
 ----
 
-The xref:sdp-libraries:openshift:ROOT:index.adoc[OpenShift library] uses xref:jte:primitives:application_environments.adoc[Application Environment primitives] to select which project in OpenShift to deploy to. For example, when the pipeline template calls `deploy to: dev`(which can also be read as `deploy(to: dev)`), it takes the _dev_ application environment primitive object that we define here and uses its values in the ``deploy_to`` step. The
-`short_name`, in particular, is used to select the target OpenShift project and which values.yaml file to use as part of the deployment. View the next section or the xref:sdp-libraries:openshift:ROOT:index.adoc[OpenShift library] page for more details.
+The xref:sdp-libraries:openshift:index.adoc[OpenShift library] uses xref:jte:primitives:application_environments.adoc[Application Environment primitives] to select which project in OpenShift to deploy to. For example, when the pipeline template calls `deploy to: dev`(which can also be read as `deploy(to: dev)`), it takes the _dev_ application environment primitive object that we define here and uses its values in the ``deploy_to`` step. The
+`short_name`, in particular, is used to select the target OpenShift project and which values.yaml file to use as part of the deployment. View the next section or the xref:sdp-libraries:openshift:index.adoc[OpenShift library] page for more details.
 
 === The Keywords
 
@@ -198,7 +198,7 @@ keywords{
 }
 ----
 
-The xref:sdp-libraries:github_enterprise:ROOT:index.adoc[GitHub Enterprise library] uses xref:jte:primitives:keywords.adoc[Keyword primitives] to determine what kind of GitHub branch is being built. The steps `on_merge()`, `on_commit`, and `on_pull_request` take a regex expression as a parameter. These regex expressions have been stored as keywords to make the pipeline template more human-readable.
+The xref:sdp-libraries:github_enterprise:index.adoc[GitHub Enterprise library] uses xref:jte:primitives:keywords.adoc[Keyword primitives] to determine what kind of GitHub branch is being built. The steps `on_merge()`, `on_commit`, and `on_pull_request` take a regex expression as a parameter. These regex expressions have been stored as keywords to make the pipeline template more human-readable.
 
 == Closing Summary
 
@@ -216,5 +216,5 @@ You should be ready to move onto the next section, which covers creating a Helm 
 
 * xref:jte:pipeline-templating:what_is_a_pipeline_template.adoc[You can learn more about writing pipeline templates here]
 * xref:jte:pipeline-templating:configuration_files.adoc[You can learn more about writing pipeline config files here]
-* xref:sdp-libraries:ROOT:index.adoc[You can learn more about the SDP pipeline libraries here]
+* xref:sdp-libraries:index.adoc[You can learn more about the SDP pipeline libraries here]
 * xref:jte:library-development:index.adoc[You can learn more about writing your own pipeline libraries here]

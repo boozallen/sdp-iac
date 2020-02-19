@@ -14,7 +14,7 @@ There are myriad ways to do any of these three tasks, but because it's assumed y
 
 === Building
 
-Since OpenShift is a container application platform, and it's assumed that your application is being deployed to OpenShift, it can also be assumed that your application running as (Docker) containers. The SDP's xref:sdp-libraries:docker:ROOT:index.adoc[Docker Library] makes it easy to build images from your source code repository and store them in OpenShift's built-in container registry.
+Since OpenShift is a container application platform, and it's assumed that your application is being deployed to OpenShift, it can also be assumed that your application running as (Docker) containers. The SDP's xref:sdp-libraries:docker:index.adoc[Docker Library] makes it easy to build images from your source code repository and store them in OpenShift's built-in container registry.
 
 [IMPORTANT]
 ====
@@ -23,8 +23,8 @@ OpenShift has some https://docs.openshift.com/container-platform/3.9/creating_im
 
 === Testing
 
-The SDP currently has libraries for tools that run xref:sdp-libraries:a11y:ROOT:index.adoc[code quality tests], xref:sdp-libraries:a11y:ROOT:index.adoc[accessibility compliance (508) tests], xref:sdp-libraries:zap:ROOT:index.adoc[penetration tests], and more. Which ones you should use depends on the needs of your application. Automated tests like these are useful for detecting issues earlier in a feature's lifecycle, where it's easier (and cheaper) to correct.
+The SDP currently has libraries for tools that run xref:sdp-libraries:a11y:index.adoc[code quality tests], xref:sdp-libraries:a11y:index.adoc[accessibility compliance (508) tests], xref:sdp-libraries:zap:index.adoc[penetration tests], and more. Which ones you should use depends on the needs of your application. Automated tests like these are useful for detecting issues earlier in a feature's lifecycle, where it's easier (and cheaper) to correct.
 
 === Deploying
 
-The xref:sdp-libraries:openshift:ROOT:index.adoc[OpenShift Library] makes it easy to deploy to different OpenShift projects using link:https://helm.sh/[Helm], a Kubernetes/OpenShift package manager and templating tool. How to deploy an application is defined in a Helm chart or charts, which is maintained in your SCM alongside your source code and pipeline configuration. This is covered in greater detail in Section 3.
+The xref:sdp-libraries:openshift:index.adoc[OpenShift Library] makes it easy to deploy to different OpenShift projects using https://helm.sh/[Helm], a Kubernetes/OpenShift package manager and templating tool. How to deploy an application is defined in a Helm chart or charts, which is maintained in your SCM alongside your source code and pipeline configuration. This is covered in greater detail in Section 3.
