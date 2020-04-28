@@ -69,8 +69,6 @@ spec:
 {{- end }}
 {{- end }}
 {{- end }}
-      nodeSelctor:
-        jenkins: "true"
       serviceAccountName: "{{ template "jenkins.serviceAccountName" . }}"
       {{- if .Values.master.hostAliases }}
       hostAliases:
