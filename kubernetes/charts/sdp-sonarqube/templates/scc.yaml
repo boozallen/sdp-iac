@@ -19,6 +19,7 @@ metadata:
       but allows users to run with any non-root UID.  The user must specify the UID
       or it must be specified on the by the manifest of the container runtime.
   name: sonarnonroot
+  namespace: {{ .Release.Namespace }}
 priority: 10
 readOnlyRootFilesystem: false
 requiredDropCapabilities:

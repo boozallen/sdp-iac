@@ -10,7 +10,7 @@ helm package manager (with helm and tiller components) must be installed and fun
 
 This chart will do the following:
 
-* Install a Jenkins Master in the default namespace
+* Install a Jenkins Master in the default or existing custom namespace
 * Optionally install persistent Jenkins agents
 * Optionally install sonarqube server
 
@@ -19,17 +19,17 @@ This chart will do the following:
 
 Note: Customize values.yaml for sdp sdp-jenkins sdp-sonarqube based on the target deployment environment 
 
-To install the chart with the release name `my-release`:
+To install the chart with the release name `my-release`into an existing namespace 'sdp-namespace':
 
 ```bash
-$ helm install --name my-release sdp/
+$ helm install --name my-release sdp/ --namespace sdp-namespace
 ```
 
-To uninstall the chart with the release name `my-release`:
+To uninstall the chart with the release name `my-release` installed in namespace 'sdp-namespace':
 
 ```bash
-$ helm delete --purge  my-release 
-$ kubectl delete secret sdp-jenkins-secret
+$ helm delete --purge  my-release  
+$ kubectl delete secret sdp-jenkins-secret --namespace 'sdp-namespace'
 ```
 
 

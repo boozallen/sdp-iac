@@ -3,6 +3,7 @@ kind: NetworkPolicy
 apiVersion: {{ template "postgresql.networkPolicy.apiVersion" . }}
 metadata:
   name: "{{ template "postgresql.fullname" . }}"
+  namespace: {{ .Release.Namespace }}
   labels:
     app: {{ template "postgresql.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"

@@ -2,6 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: {{ template "sonarqube.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     app: {{ template "sonarqube.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
@@ -125,7 +126,7 @@ spec:
                 name: sonarqube-credential-configuration
                 key: password
           command: [ "/bin/bash" ]
-          args: [ "-c", "until curl -sL -w %{http_code} -u $API_USER:$API_TOKEN http://jenkins:8080 -o /dev/null | grep 200 ; do echo \"waiting on jenkins..\" && sleep 2; done && echo \"waiting on sonarqube...\" && until curl -s -u admin:admin http://localhost:9000/api/system/health | grep -i green ; do echo \"sleeping..\" && sleep 2; done &&    curl -X POST -s -u admin:admin http://localhost:9000/api/users/create?login=$SQ_USER\\&name=user\\&password=$SQ_PW && echo \"fieldValues={\\\"name\\\":\\\"$SQ_USER\\\", \\\"url\\\":\\\"http://jenkins:8080/sonarqube-webhook/\\\"}\" > /tmpDir/json && curl -v -X POST -u admin:admin http://localhost:9000/api/settings/set?key=sonar.webhooks.global --data @/tmpDir/json && echo \"completed script...\" && tail -f /dev/null"]
+          args: [ "-c", "until curl -sL -w %{http_code} -u $API_USER:$API_TOKEN http://jenkins.{{ .Values.jenkins.masterNamespace }}.svc:8080 -o /dev/null | grep 200 ; do echo \"waiting on jenkins..\" && sleep 2; done && echo \"waiting on sonarqube...\" && until curl -s -u admin:admin http://localhost:9000/api/system/health | grep -i green ; do echo \"sleeping..\" && sleep 2; done &&    curl -X POST -s -u admin:admin http://localhost:9000/api/users/create?login=$SQ_USER\\&name=user\\&password=$SQ_PW && echo \"fieldValues={\\\"name\\\":\\\"$SQ_USER\\\", \\\"url\\\":\\\"http://jenkins.{{ .Values.jenkins.masterNamespace }}.svc:8080/sonarqube-webhook/\\\"}\" > /tmpDir/json && curl -v -X POST -u admin:admin http://localhost:9000/api/settings/set?key=sonar.webhooks.global --data @/tmpDir/json && echo \"completed script...\" && tail -f /dev/null"]
           volumeMounts:
             - mountPath: /tmpDir
               name: tmp-dir

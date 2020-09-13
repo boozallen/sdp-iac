@@ -41,7 +41,7 @@ seccompProfiles:
 supplementalGroups:
   type: RunAsAny
 users:
-- system:serviceaccount:default:{{ .Values.serviceAccountAgent.name }}
+- system:serviceaccount:{{ template "jenkins.namespace" . }}:{{ .Values.serviceAccountAgent.name }}
 volumes:
 - '*'
 
@@ -85,7 +85,7 @@ seLinuxContext:
 supplementalGroups:
   type: RunAsAny
 users:
-- system:serviceaccount:default:{{ .Values.serviceAccount.name }}
+- system:serviceaccount:{{ template "jenkins.namespace" . }}:{{ .Values.serviceAccount.name }}
 volumes:
 - configMap
 - downwardAPI

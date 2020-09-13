@@ -32,7 +32,7 @@ spec:
       containers:
       - env:
         - name: JENKINS_URL
-          value: http://{{ template "jenkins.fullname" . }}:8080/
+          value: "http://{{ template "jenkins.fullname" . }}.{{  template "jenkins.namespace" . }}.svc:8080/"
         - name: JENKINS_TUNNEL
           value: {{ template "jenkins.fullname" . }}-agent:50000
         - name: EXECUTORS

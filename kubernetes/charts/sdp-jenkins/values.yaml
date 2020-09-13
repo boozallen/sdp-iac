@@ -12,7 +12,7 @@ fullnameOverride: jenkins
 master:
   componentName: "jenkins-master"
   image: "jenkins/jenkins"
-  tag: "2.204.1"
+  tag: "2.222.3"
   imagePullPolicy: "IfNotPresent"
   imagePullSecretName: ""
   lifecycle:
@@ -80,8 +80,11 @@ master:
   # - name: BuildInfoProxy
   #   port: 9000
 
-  installPlugins: []
-
+  installPlugins: 
+  - matrix-auth:latest
+  - configuration-as-code:latest
+  - swarm:latest
+  - templating-engine:latest
 
   # overwritePlugins: true
   enableRawHtmlMarkupFormatter: false
@@ -93,6 +96,7 @@ master:
         This software package is licensed under the Booz Allen Public License. The license can be found in the License file or at http://boozallen.github.io/licenses/bapl
       */
       
+      
       import jenkins.*
       import hudson.*
       import hudson.util.Secret
@@ -100,44 +104,9 @@ master:
       import jenkins.model.*
       import hudson.security.*
       import jenkins.security.*
-      import com.cloudbees.plugins.credentials.*
-      import com.cloudbees.plugins.credentials.impl.*
-      import com.cloudbees.plugins.credentials.common.*
-      import com.cloudbees.plugins.credentials.domains.*
-      import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
-      import com.cloudbees.plugins.credentials.CredentialsProvider
-      import hudson.plugins.sshslaves.*
       import groovy.io.FileType
-      import javaposse.jobdsl.dsl.DslScriptLoader
-      import javaposse.jobdsl.plugin.JenkinsJobManagement
       import java.util.logging.Logger
-      import org.jenkinsci.plugins.github_branch_source.GitHubConfiguration
-      import org.jenkinsci.plugins.github_branch_source.Endpoint
-      
-      // for shared libraries
-      import org.jenkinsci.plugins.workflow.libs.GlobalLibraries
-      import org.jenkinsci.plugins.workflow.libs.LibraryConfiguration
-      import org.jenkinsci.plugins.workflow.libs.SCMSourceRetriever
-      import org.jenkinsci.plugins.workflow.libs.SCMRetriever
-      import org.jenkinsci.plugins.github_branch_source.GitHubSCMSource
-      import hudson.plugins.filesystem_scm.FSSCM
-      
-      // for security
       import jenkins.security.s2m.AdminWhitelistRule
-      import hudson.security.csrf.DefaultCrumbIssuer
-      import org.jenkinsci.plugins.configfiles.groovy.GroovyScript
-      import org.jenkinsci.plugins.configfiles.GlobalConfigFiles
-      import org.jenkinsci.plugins.scriptsecurity.scripts.languages.GroovyLanguage
-      import jenkins.model.JenkinsLocationConfiguration
-      import org.jenkinsci.plugins.workflow.flow.FlowDurabilityHint
-      
-      //for sonar installation
-      import hudson.plugins.sonar.SonarInstallation
-      import hudson.plugins.sonar.SonarRunnerInstallation
-      import hudson.plugins.sonar.SonarRunnerInstaller
-      import hudson.plugins.sonar.model.TriggersConfig
-      import hudson.tools.InstallSourceProperty
-      
       
       
       def sdp_jenkins_secret ="sdp-jenkins-secret"
@@ -150,12 +119,6 @@ master:
       log "sdp Jenkins Secret: ${sdp_jenkins_secret}"
       
       def jenkins = Jenkins.getInstance()
-      
-      // durability set to performance optimized
-      durability = jenkins.getDescriptor("org.jenkinsci.plugins.workflow.flow.GlobalDefaultFlowDurabilityLevel")
-      durability.setDurabilityHint(FlowDurabilityHint.PERFORMANCE_OPTIMIZED)
-      jenkins.save()
-      
       
       // create dummy admin user for connection agents
       log "Creating admin service account: sdp-jenkins-admin"
@@ -175,7 +138,7 @@ master:
       part6 = "{\"metadata\":{\"name\":\"sdp-jenkins-secret\"},\"stringData\":{\"username\":\"sdp-jenkins-admin\"},\"stringData\":{\"token\": \"${token}\"}}"
       File file = new File("/var/jenkins_home/secret.json")
       file.write "${part6}"
-      cmd = '/bin/bash -c "export K8S=https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT; export K8STOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token);export CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt;export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace);curl -X DELETE \\$K8S/api/v1/namespaces/\\$NAMESPACE/secrets/sdp-jenkins-secret --cacert \\$CACERT -H \\\"Authorization: Bearer \\$K8STOKEN\\\";curl -X POST \\$K8S/api/v1/namespaces/default/secrets -H \\\"Content-Type: application/json\\\" --cacert \\$CACERT -H \\\"Authorization: Bearer \\$K8STOKEN\\\" -d @/var/jenkins_home/secret.json;"'
+      cmd = '/bin/bash -c "export K8S=https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT; export K8STOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token);export CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt;export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace); curl -X DELETE \\$K8S/api/v1/namespaces/\\$NAMESPACE/secrets/sdp-jenkins-secret --cacert \\$CACERT -H \\\"Authorization: Bearer \\$K8STOKEN\\\";curl -X POST \\$K8S/api/v1/namespaces/\\$NAMESPACE/secrets -H \\\"Content-Type: application/json\\\" --cacert \\$CACERT -H \\\"Authorization: Bearer \\$K8STOKEN\\\" -d @/var/jenkins_home/secret.json;"'
       File scriptFile = new File("/var/jenkins_home/secret.sh")
       scriptFile.write "${cmd}"
       log "cmd: ${cmd}"
@@ -190,18 +153,6 @@ master:
       // create security matrix
       log "Creating authorization strategy to Global Matrix Authorization"
       GlobalMatrixAuthorizationStrategy newAuthMgr = new GlobalMatrixAuthorizationStrategy()
-
-      // set default authenticated user permissions
-      log "Setting default permissions for authenticated user"
-      [
-        Hudson.READ,
-        Item.READ,
-        Item.DISCOVER,
-        CredentialsProvider.VIEW
-      ].each{ permission ->
-        log "  - ${permission}"
-        newAuthMgr.add(permission, "authenticated");
-      }
 
       // give dummy admin user ability to configure agents
       log "Giving permissions to SDP jenkins admin service account"
@@ -272,10 +223,6 @@ master:
     supportPluginVersion: "1.18"
     configScripts:
       sdp-credentials-config: |
-        credentials:
-          system:
-            domainCredentials:
-            - credentials:
       sdp-jenkins-config: |
         jenkins:
           agentProtocols:
@@ -312,24 +259,9 @@ master:
           viewsTabBar: "standard"
       sdp-unclassified-config: |
         unclassified:
-          buildStepOperation:
-            enabled: false
-          gitHubPluginConfig:
-            hookUrl: "http://jenkins.default.svc:8080/github-webhook/"
-          gitSCM:
-            createAccountBasedOnEmail: false
-          globalDefaultFlowDurabilityLevel:
-            durabilityHint: PERFORMANCE_OPTIMIZED
-          ivyBuildTrigger:
-            extendedVersionMatching: false
           location:
             adminAddress: "address not configured yet <nobody@nowhere>"
             url: "http://jenkins.default.svc:8080/"
-          mailer:
-            charset: "UTF-8"
-            useSsl: false
-          mavenModuleSet:
-            localRepository: "default"
           pollSCM:
             pollingThreadCount: 10
       sdp-security-config: |
@@ -338,8 +270,6 @@ master:
             creationOfLegacyTokenEnabled: false
             tokenGenerationOnCreationEnabled: false
             usageStatisticsEnabled: true
-          globalJobDslSecurityConfiguration:
-            useScriptSecurity: true
           sSHD:
             port: 1044
 
@@ -354,7 +284,7 @@ master:
       resources:
       sshTcpPort: 1044
       folder: "/var/jenkins_home/casc_configs"
-      # searchNamespace:
+#      searchNamespace: "custom-namespace"
     other:
   nodeSelector: {}
   tolerations: []

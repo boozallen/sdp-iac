@@ -22,11 +22,15 @@ The following table lists the configurable parameters of the Sonarqube chart and
 | `image.pullSecret`                          | imagePullSecret to use for private repository      |                                   |
 | `replicaCount`                                   | Configures number of pods of Sonarqube to be deployed           | `1`       | 
 | `username`                                   | username to be configured on sonarqube for pipelines to use           | `sonar`       | 
-| `password`                                   | pasword to be configured on sonarqube for pipelines to use           | `sonar`       | 
+| `password`                                   | pasword to be configured on sonarqube for pipelines to use           | `sonar`       |
+| `patch`                   |Apply patch (needed for upstream docker image of sonarqube:6.7) |  `true`                                 |
 | `securityContext.fsGroup`                   | Group applied to mounted directories/files|  `999`                                     |
 | `securityContext.runAsUser`                   | userid to run sonarqube server as |  `999`                                     |
 | `securityContext.runAsGroup`                   | groupid to run sonarqube server as |  `999`                                     |
-| `ingress.enabled`                           | Flag for enabling ingress                 | false                                      |
+| `scc.create`                   | Create Security Context Constraint |  `false`                                     |
+| `serviceAccount.create`                   | Create Sonarqube service account |  `true`                                     |
+| `serviceAccount.name`                   | Name of Sonarqube service account |  `sonarsa`                                     
+| `ingress.enabled`                           | Flag for enabling ingress                 | true                                      |
 | `ingress.labels`                            | Ingress additional labels                 | `{}`                                       |
 | `ingress.hosts[0].name`                     | Hostname to your SonarQube installation   | `sonar.sdp.com`                   |
 | `ingress.hosts[0].path`                     | Path within the URL structure             | /                                          |
@@ -64,3 +68,6 @@ The following table lists the configurable parameters of the Sonarqube chart and
 | `plugins.initContainerImage`                | Change init container image               | `[]`                                       |
 | `plugins.deleteDefaultPlugins`              | Remove default plugins and use plugins.install list | `[]`                             |
 | `podLabels`                                 | Map of labels to add to the pods          | `{}`                                       |
+| `route.enabled`                                 | Enable Openshift route          | `true`                                       |
+| `route.path`                                 | Host Path for Openshift route         | `sonarqube.sdp.com`                          |
+| `jenkins.masterNamespace`                                 | Namespace of the Jenkins master         | `default`                          |

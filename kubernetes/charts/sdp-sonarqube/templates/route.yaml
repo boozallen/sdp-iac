@@ -4,6 +4,7 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: {{ template "sonarqube.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     app: {{ template "sonarqube.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}

@@ -1,3 +1,4 @@
+{{- if .Values.patch }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -25,3 +26,5 @@ data:
         -Dsonar.jdbc.url="$SONARQUBE_JDBC_URL" \
         -Dsonar.web.javaAdditionalOpts="$SONARQUBE_WEB_JVM_OPTS -Djava.security.egd=file:/dev/./urandom" \
         "$@"
+
+{{ end }}
