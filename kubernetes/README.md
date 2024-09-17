@@ -22,7 +22,12 @@ Note: Customize values.yaml for sdp sdp-jenkins sdp-sonarqube based on the targe
 To install the chart with the release name `my-release`:
 
 ```bash
-$ helm install --name my-release sdp/
+$ helm install --name sdp .
+```
+
+For Helm 3
+```bash
+$ helm install sdp .
 ```
 
 To uninstall the chart with the release name `my-release`:
@@ -31,7 +36,6 @@ To uninstall the chart with the release name `my-release`:
 $ helm delete --purge  my-release 
 $ kubectl delete secret sdp-jenkins-secret
 ```
-
 
 ## Configuration
 
